@@ -49,6 +49,8 @@ function pageLoad() {
 
         if (item.value.length > 0)
             animateText(item, "f");
+        else
+            animateText(item, "b");
 
         item.addEventListener("focus", function () {
             if (this.value.length > 0)
@@ -74,6 +76,7 @@ function animateText(oInput, state) {
         id = setInterval(frameUp, 5);
         elem.style.bottom = "";
         elem.style.fontSize = "10pt";
+        elem.style.color = "#f09b9bfa";
         oInput.style.outline = "none";
         oInput.style.borderBottom = "1px solid red";
     }
@@ -82,6 +85,7 @@ function animateText(oInput, state) {
         pos = elem.clientHeight;
         elem.style.top = "";
         elem.style.fontSize = "";
+        elem.style.color = "#534c4c8c";
         oInput.style.outline = "";
         oInput.style.borderBottom = "none";
     }
