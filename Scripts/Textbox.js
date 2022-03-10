@@ -24,6 +24,7 @@ function pageLoad() {
         mainDiv.style.position = "relative";
         mainDiv.style.overflow = "hidden";
         mainDiv.style.paddingTop = "10pt";
+        mainDiv.style.marginBottom = "10pt";
         mainDiv.style.float = item.style.float;
         mainDiv.style.display = item.style.display;
         mainDiv.append(item);
@@ -46,6 +47,7 @@ function pageLoad() {
         item.style.width = "100%";
         item.style.height = "100%";
         item.style.border = "none";
+        item.style.borderBottom ="1px solid #c9c9c9";
 
         if (item.value.length > 0)
             animateText(item, "f");
@@ -87,7 +89,7 @@ function animateText(oInput, state) {
         elem.style.fontSize = "";
         elem.style.color = "#534c4c8c";
         oInput.style.outline = "";
-        oInput.style.borderBottom = "none";
+        oInput.style.borderBottom = "1px solid #c9c9c9";
     }
     function frameUp() {
         if (pos == 0) {
