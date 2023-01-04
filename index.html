@@ -4,12 +4,27 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="assets/css/mainLayout.css" rel="stylesheet" />
+    <script src="assets/js/fontawsome/fontawsome.min.js"></script>
+    <script src="index.js"></script>
     <title>Document</title>
 </head>
 
 <body>
-    <h1>صفحه اصلی</h1>
-    <a href="pages/SpecialTextbox.html">تکست باکس</a>
+    <nav class="navbar">
+        <a href="index.html"><i class="fa-solid fa-house">صفحه اصلی</i></a>
+    </nav>
+    <section class="sidebar">
+        <i class="fa-solid fa-bars" onclick="openPage('SpecialTextbox')">تکست باکس</i>
+        <i class="fa-solid fa-bars" onclick="openPage('ResizableElement')">باکس با قابلیت تغییر سایز</i>
+    </section>
+    <article id="container">
+        <iframe id="containerFrame"></iframe>
+    </article>
+    <footer>
+
+    </footer>
+
 </body>
 
 </html>

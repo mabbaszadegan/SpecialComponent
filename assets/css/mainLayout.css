@@ -1,0 +1,58 @@
+@font-face {
+    font-family: "Dana";
+    src: url("../fonts/dana/DanaFaNum-Medium.ttf") format("truetype"),
+        url("../fonts/dana/DanaFaNum-Medium.woff") format("woff"),
+        url("../fonts/dana/DanaFaNum-Medium.woff2") format("woff2");
+    font-weight: 100;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    direction: rtl;
+    font-family: 'Dana';
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    width: 100%;
+    height: 7%;
+    background-color: aquamarine;
+    padding: 7px 7px;
+}
+
+.sidebar {
+    width: 20%;
+    height: 88%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    background-color: rebeccapurple;
+    float: right;
+}
+
+#container {
+    width: 80%;
+    height: 88%;
+    overflow: auto;
+    background-color: rosybrown;
+    float: left;
+}
+
+#containerFrame {
+    width: 100%;
+    height: 100%;
+}
+
+footer {
+    width: 100%;
+    height: 5%;
+    background-color: black;
+    color: white;
+    padding: 7px 7px;
+    display: flex;
+}
