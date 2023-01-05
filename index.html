@@ -5,8 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="assets/css/mainLayout.css" rel="stylesheet" />
+    <link href="Components/Sidebar/sidebar.css" rel="stylesheet" />
     <script src="assets/js/fontawsome/fontawsome.min.js"></script>
-    <script src="index.js"></script>
+    <script src="index.js" type="module"></script>
     <title>Document</title>
 </head>
 
@@ -14,9 +15,7 @@
     <nav class="navbar">
         <a href="index.html"><i class="fa-solid fa-house">صفحه اصلی</i></a>
     </nav>
-    <section class="sidebar">
-        <i class="fa-solid fa-bars" onclick="openPage('SpecialTextbox')">تکست باکس</i>
-        <i class="fa-solid fa-bars" onclick="openPage('ResizableElement')">باکس با قابلیت تغییر سایز</i>
+    <section class="sidebar" id="sidebarContainer">
     </section>
     <article id="container">
         <iframe id="containerFrame"></iframe>

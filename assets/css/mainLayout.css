@@ -24,16 +24,6 @@ body {
     padding: 7px 7px;
 }
 
-.sidebar {
-    width: 20%;
-    height: 88%;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    background-color: rebeccapurple;
-    float: right;
-}
 
 #container {
     width: 80%;
