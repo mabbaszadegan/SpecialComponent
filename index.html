@@ -1,4 +1,5 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
@@ -8,22 +9,71 @@
     <link href="Components/Sidebar/sidebar.css" rel="stylesheet" />
     <script src="assets/js/fontawsome/fontawsome.min.js"></script>
     <script src="index.js" type="module"></script>
-    <title>Document</title>
+    <title>Special Components Library - کتابخانه کامپوننت‌های ویژه</title>
 </head>
 
 <body>
-    <nav class="navbar">
-        <a href="index.html"><i class="fa-solid fa-house">صفحه اصلی</i></a>
-    </nav>
-    <section class="sidebar" id="sidebarContainer">
-    </section>
-    <article id="container">
-        <iframe id="containerFrame"></iframe>
-    </article>
-    <footer>
+    <div class="app-container">
+        <!-- Header -->
+        <nav class="navbar">
+            <a href="index.html" class="navbar-brand">
+                <i class="fa-solid fa-cube"></i>
+                <span>Special Components</span>
+            </a>
+            
+            <div class="navbar-actions">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <a href="#" class="navbar-button">
+                    <i class="fa-solid fa-download"></i>
+                    <span>دانلود</span>
+                </a>
+                <a href="#" class="navbar-button">
+                    <i class="fa-solid fa-book"></i>
+                    <span>مستندات</span>
+                </a>
+            </div>
+        </nav>
 
-    </footer>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebarContainer">
+            <div class="sidebar-header">
+                <div class="sidebar-title">کامپوننت‌ها</div>
+                <div class="sidebar-subtitle">کتابخانه ویژه</div>
+            </div>
+            
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Sidebar items will be populated by JavaScript -->
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="sidebar-footer-text">
+                    نسخه 1.0.0
+                </div>
+            </div>
+        </aside>
 
+        <!-- Main Content -->
+        <main id="container">
+            <iframe id="containerFrame" title="Component Preview"></iframe>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-links">
+                <a href="#" class="footer-link">GitHub</a>
+                <a href="#" class="footer-link">مستندات</a>
+                <a href="#" class="footer-link">نمونه‌ها</a>
+            </div>
+            <div>
+                © 2024 Special Components Library
+            </div>
+        </footer>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 </body>
 
 </html>

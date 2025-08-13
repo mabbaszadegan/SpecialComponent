@@ -1,0 +1,158 @@
+{
+  "items": [
+    {
+      "key": "dashboard",
+      "text": "Dashboard",
+      "icon": "fa-solid fa-tachometer-alt",
+      "description": "System Overview",
+      "category": "main",
+      "behavior": "always-open",
+      "children": [
+        {
+          "key": "overview",
+          "text": "Overview",
+          "icon": "fa-solid fa-chart-line",
+          "description": "Statistics and Charts",
+          "behavior": "clickable"
+        },
+        {
+          "key": "analytics",
+          "text": "Analytics",
+          "icon": "fa-solid fa-chart-bar",
+          "description": "Analytical Reports",
+          "behavior": "auto-expand"
+        },
+        {
+          "key": "reports",
+          "text": "Reports",
+          "icon": "fa-solid fa-file-alt",
+          "description": "Various Reports",
+          "behavior": "clickable"
+        }
+      ]
+    },
+    {
+      "key": "components",
+      "text": "Components",
+      "icon": "fa-solid fa-puzzle-piece",
+      "description": "Component Library",
+      "category": "development",
+      "behavior": "clickable",
+      "children": [
+        {
+          "key": "ui",
+          "text": "User Interface",
+          "icon": "fa-solid fa-desktop",
+          "behavior": "clickable",
+          "children": [
+            {
+              "key": "buttons",
+              "text": "Buttons",
+              "icon": "fa-solid fa-square",
+              "description": "Various Button Types",
+              "behavior": "clickable"
+            },
+            {
+              "key": "forms",
+              "text": "Forms",
+              "icon": "fa-solid fa-wpforms",
+              "description": "Different Form Types",
+              "behavior": "clickable"
+            },
+            {
+              "key": "modals",
+              "text": "Modals",
+              "icon": "fa-solid fa-window-maximize",
+              "description": "Modal Windows",
+              "behavior": "clickable"
+            }
+          ]
+        },
+        {
+          "key": "data",
+          "text": "Data",
+          "icon": "fa-solid fa-database",
+          "behavior": "clickable",
+          "children": [
+            {
+              "key": "tables",
+              "text": "Tables",
+              "icon": "fa-solid fa-table",
+              "description": "Data Tables",
+              "behavior": "clickable"
+            },
+            {
+              "key": "charts",
+              "text": "Charts",
+              "icon": "fa-solid fa-chart-pie",
+              "description": "Various Chart Types",
+              "behavior": "clickable"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "settings",
+      "text": "Settings",
+      "icon": "fa-solid fa-cog",
+      "description": "System Settings",
+      "category": "system",
+      "behavior": "clickable",
+      "children": [
+        {
+          "key": "profile",
+          "text": "Profile",
+          "icon": "fa-solid fa-user",
+          "description": "Profile Settings",
+          "behavior": "clickable"
+        },
+        {
+          "key": "security",
+          "text": "Security",
+          "icon": "fa-solid fa-shield-alt",
+          "description": "Security Settings",
+          "behavior": "clickable"
+        },
+        {
+          "key": "notifications",
+          "text": "Notifications",
+          "icon": "fa-solid fa-bell",
+          "description": "Notification Preferences",
+          "behavior": "clickable"
+        }
+      ]
+    },
+    {
+      "key": "help",
+      "text": "Help & Support",
+      "icon": "fa-solid fa-question-circle",
+      "description": "Help Documentation",
+      "category": "support",
+      "behavior": "clickable",
+      "children": [
+        {
+          "key": "documentation",
+          "text": "Documentation",
+          "icon": "fa-solid fa-book",
+          "description": "User Manual",
+          "behavior": "clickable"
+        },
+        {
+          "key": "tutorials",
+          "text": "Tutorials",
+          "icon": "fa-solid fa-graduation-cap",
+          "description": "Step-by-step Guides",
+          "behavior": "clickable"
+        },
+        {
+          "key": "contact",
+          "text": "Contact Support",
+          "icon": "fa-solid fa-headset",
+          "description": "Get Help",
+          "behavior": "clickable"
+        }
+      ]
+    }
+  ]
+}
