@@ -1,5 +1,8 @@
 /* Sidebar Web Components Styles */
 
+/* Import FontAwesome for icons */
+@import url('/../../assets/libs/font-awesome/fontawsome.min.css');
+
 /* CSS Variables for theming */
 :root {
   /* Light theme */
@@ -207,6 +210,22 @@
   color: #64b5f6;
 }
 
+/* آیتم‌های قابل باز شدن */
+.sc-sidebar-item[data-expandable="true"] {
+  cursor: pointer;
+}
+
+/* آیتم‌های قابل کلیک */
+.sc-sidebar-item[data-clickable="true"] {
+  cursor: pointer;
+}
+
+/* آیتم‌های غیرفعال */
+.sc-sidebar-item[data-clickable="false"][data-expandable="false"] {
+  cursor: default;
+  opacity: 0.6;
+}
+
 .sc-sidebar-item .sc-item-icon {
   width: 20px;
   margin-right: 12px;
@@ -247,27 +266,33 @@
 }
 
 /* Nested items */
-.sc-sidebar-item .sc-nested-items {
+.sc-nested-items {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease, padding 0.3s ease;
   background: rgba(0, 0, 0, 0.02);
+  opacity: 0;
+  transform: translateY(-10px);
+  padding: 0;
 }
 
-.sc-sidebar[theme="dark"] .sc-sidebar-item .sc-nested-items {
+.sc-sidebar[theme="dark"] .sc-nested-items {
   background: rgba(255, 255, 255, 0.02);
 }
 
 .sc-sidebar-item.expanded .sc-nested-items {
-  max-height: 500px;
+  max-height: 1000px;
+  opacity: 1;
+  transform: translateY(0);
+  padding: 5px 0;
 }
 
-.sc-sidebar-item .sc-nested-items .sc-sidebar-item {
+.sc-nested-items .sc-sidebar-item {
   padding-left: 40px;
   font-size: 13px;
 }
 
-.sc-sidebar-item .sc-nested-items .sc-sidebar-item .sc-item-icon {
+.sc-nested-items .sc-sidebar-item .sc-item-icon {
   font-size: 14px;
 }
 
@@ -296,7 +321,7 @@
 }
 
 .sc-sidebar.collapsed .sc-nested-items {
-  display: none;
+  display: none !important;
 }
 
 /* Responsive */
@@ -366,7 +391,7 @@
   }
   to {
     opacity: 1;
-    max-height: 500px;
+    max-height: 1000px;
   }
 }
 
