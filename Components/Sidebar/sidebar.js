@@ -1,922 +1,1021 @@
-// Special Sidebar Component - Flexible Design with Data Source Support
+// Advanced Sidebar Web Components
+// <sc-sidebar> and <sc-sidebar-item> with full feature set
+
 class ScSidebar extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    
-    // Default configuration
-    this.scSidebarConfig = {
-      theme: 'light',
-      position: 'right',
-      width: '280px',
-      collapsible: true,
-      showHeader: true,
-      showFooter: true,
-      items: [],
-      searchable: false,
-      filterable: false,
-      animations: true,
-      responsive: true,
-      autoExpandOnLoad: false,
-      rememberState: true,
-      dataSource: null,
-      dataSourceType: null, // 'json', 'api', 'manual'
-      apiEndpoint: null,
-      apiHeaders: {},
-      refreshInterval: null
-    };
-    
-    // Internal state
-    this.scSidebarState = {
-      isCollapsed: false,
-      isMobile: false,
-      activeItem: null,
-      searchQuery: '',
-      expandedItems: new Set(),
-      sidebarOpen: false,
-      isLoading: false,
-      lastRefresh: null
-    };
-    
-    // Bind methods
-    this.scSidebarHandleItemClick = this.scSidebarHandleItemClick.bind(this);
-    this.scSidebarToggleSidebar = this.scSidebarToggleSidebar.bind(this);
-    this.scSidebarHandleSearch = this.scSidebarHandleSearch.bind(this);
-    this.scSidebarHandleItemExpand = this.scSidebarHandleItemExpand.bind(this);
-    this.scSidebarRefreshData = this.scSidebarRefreshData.bind(this);
-  }
-
-  static get observedAttributes() {
-    return [
-      'theme', 'position', 'width', 'collapsible', 'show-header', 'show-footer',
-      'searchable', 'filterable', 'animations', 'responsive', 'auto-expand-on-load', 'remember-state',
-      'data-source', 'api-endpoint', 'refresh-interval'
-    ];
-  }
-
-  connectedCallback() {
-    this.scSidebarInitializeComponent();
-    this.scSidebarLoadSavedState();
-    this.scSidebarRender();
-    this.scSidebarSetupEventListeners();
-    
-    // Initialize data source if specified
-    if (this.scSidebarConfig.dataSource) {
-      this.scSidebarInitializeDataSource();
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.state = {
+            collapsed: false,
+            mobileOpen: false,
+            searchQuery: '',
+            expandedItems: []
+        };
+        this.defaultItems = [
+            {
+                key: 'dashboard',
+                text: 'Dashboard',
+                icon: 'fas fa-tachometer-alt',
+                description: 'System overview',
+                behavior: 'clickable'
+            },
+            {
+                key: 'users',
+                text: 'Users',
+                icon: 'fas fa-users',
+                description: 'User management',
+                behavior: 'expandable',
+                children: [
+                    {
+                        key: 'user-list',
+                        text: 'User List',
+                        icon: 'fas fa-list',
+                        description: 'View all users',
+                        behavior: 'clickable'
+                    },
+                    {
+                        key: 'add-user',
+                        text: 'Add User',
+                        icon: 'fas fa-user-plus',
+                        description: 'Create new user',
+                        behavior: 'clickable'
+                    }
+                ]
+            },
+            {
+                key: 'settings',
+                text: 'Settings',
+                icon: 'fas fa-cog',
+                description: 'System configuration',
+                behavior: 'clickable'
+            }
+        ];
+        this.init();
     }
-  }
 
-  disconnectedCallback() {
-    this.scSidebarSaveState();
-    
-    // Clear refresh interval if exists
-    if (this.scSidebarConfig.refreshInterval) {
-      clearInterval(this.scSidebarConfig.refreshInterval);
+    static get observedAttributes() {
+        return ['theme', 'position', 'width', 'collapsible', 'show-header', 'show-footer', 'searchable', 'animations', 'responsive', 'remember-state'];
     }
-  }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue) {
-      this.scSidebarUpdateConfig(name, newValue);
-      
-      // Handle data source changes
-      if (name === 'data-source' || name === 'api-endpoint' || name === 'refresh-interval') {
-        this.scSidebarInitializeDataSource();
-      }
-      
-      this.scSidebarRender();
+    init() {
+        this.loadState();
+        this.render();
+        this.setupEventListeners();
+        this.createDefaultItemsIfNeeded();
     }
-  }
 
-  // Public API Methods
-  scSidebarSetItems(items) {
-    this.scSidebarConfig.items = Array.isArray(items) ? items : [];
-    this.scSidebarConfig.dataSourceType = 'manual';
-    this.scSidebarSetupDefaultState();
-    this.scSidebarRender();
-  }
+    render() {
+        const theme = this.getAttribute('theme') || 'light';
+        const position = this.getAttribute('position') || 'left';
+        const width = this.getAttribute('width') || '250px';
+        const showHeader = this.hasAttribute('show-header');
+        const showFooter = this.hasAttribute('show-footer');
+        const searchable = this.hasAttribute('searchable');
+        const collapsible = this.hasAttribute('collapsible');
 
-  scSidebarAddItem(item, parentKey = null) {
-    if (item && item.key) {
-      if (parentKey) {
-        const parent = this.scSidebarFindItemByKey(parentKey);
-        if (parent) {
-          if (!parent.children) parent.children = [];
-          parent.children.push(item);
+        this.shadowRoot.innerHTML = `
+            <link rel="stylesheet" href="/../../assets/libs/font-awesome/fontawsome.min.css">
+            <style>
+                /* Sidebar Web Components Styles */
+                
+                /* CSS Variables for theming */
+                :host {
+                    /* Light theme */
+                    --sc-light-bg: #ffffff;
+                    --sc-light-text: #333333;
+                    --sc-light-border: #e0e0e0;
+                    --sc-light-hover: #f5f5f5;
+                    --sc-light-active: #e3f2fd;
+                    --sc-light-shadow: rgba(0, 0, 0, 0.1);
+                    
+                    /* Dark theme */
+                    --sc-dark-bg: #2c3e50;
+                    --sc-dark-text: #ecf0f1;
+                    --sc-dark-border: #34495e;
+                    --sc-dark-hover: #34495e;
+                    --sc-dark-active: #3498db;
+                    --sc-dark-shadow: rgba(0, 0, 0, 0.3);
+                    
+                    /* Common */
+                    --sc-transition: all 0.3s ease;
+                    --sc-border-radius: 8px;
+                    --sc-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                }
+                
+                /* Sidebar Container */
+                .sc-sidebar {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100vh;
+                    background: var(--sc-light-bg);
+                    color: var(--sc-light-text);
+                    border: 1px solid var(--sc-light-border);
+                    box-shadow: 0 2px 10px var(--sc-light-shadow);
+                    transition: var(--sc-transition);
+                    font-family: var(--sc-font-family);
+                    overflow: hidden;
+                }
+                
+                .sc-sidebar[theme="dark"] {
+                    background: var(--sc-dark-bg);
+                    color: var(--sc-dark-text);
+                    border-color: var(--sc-dark-border);
+                    box-shadow: 0 2px 10px var(--sc-dark-shadow);
+                }
+                
+                /* Position variants */
+                .sc-sidebar[position="left"] {
+                    border-right: 1px solid var(--sc-light-border);
+                }
+                
+                .sc-sidebar[position="right"] {
+                    border-left: 1px solid var(--sc-light-border);
+                }
+                
+                .sc-sidebar[position="right"][theme="dark"] {
+                    border-left-color: var(--sc-dark-border);
+                }
+                
+                /* Header */
+                .sc-sidebar-header {
+                    padding: 20px;
+                    border-bottom: 1px solid var(--sc-light-border);
+                    background: var(--sc-light-bg);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    min-height: 60px;
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-header {
+                    border-bottom-color: var(--sc-dark-border);
+                    background: var(--sc-dark-bg);
+                }
+                
+                .sc-sidebar-header h3 {
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+                
+                .sc-sidebar-header .sc-toggle-btn {
+                    background: none;
+                    border: none;
+                    font-size: 20px;
+                    cursor: pointer;
+                    color: inherit;
+                    padding: 5px;
+                    border-radius: 4px;
+                    transition: var(--sc-transition);
+                }
+                
+                .sc-sidebar-header .sc-toggle-btn:hover {
+                    background: var(--sc-light-hover);
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-header .sc-toggle-btn:hover {
+                    background: var(--sc-dark-hover);
+                }
+                
+                /* Search */
+                .sc-sidebar-search {
+                    padding: 15px 20px;
+                    border-bottom: 1px solid var(--sc-light-border);
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-search {
+                    border-bottom-color: var(--sc-dark-border);
+                }
+                
+                .sc-sidebar-search input {
+                    width: 100%;
+                    padding: 10px 15px;
+                    border: 1px solid var(--sc-light-border);
+                    border-radius: var(--sc-border-radius);
+                    background: var(--sc-light-bg);
+                    color: var(--sc-light-text);
+                    font-size: 14px;
+                    transition: var(--sc-transition);
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-search input {
+                    border-color: var(--sc-dark-border);
+                    background: var(--sc-dark-bg);
+                    color: var(--sc-dark-text);
+                }
+                
+                .sc-sidebar-search input:focus {
+                    outline: none;
+                    border-color: #3498db;
+                    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+                }
+                
+                /* Content */
+                .sc-sidebar-content {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 10px 0;
+                }
+                
+                .sc-sidebar-content::-webkit-scrollbar {
+                    width: 6px;
+                }
+                
+                .sc-sidebar-content::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                .sc-sidebar-content::-webkit-scrollbar-thumb {
+                    background: var(--sc-light-border);
+                    border-radius: 3px;
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-content::-webkit-scrollbar-thumb {
+                    background: var(--sc-dark-border);
+                }
+                
+                /* Footer */
+                .sc-sidebar-footer {
+                    padding: 20px;
+                    border-top: 1px solid var(--sc-light-border);
+                    background: var(--sc-light-bg);
+                    text-align: center;
+                    font-size: 12px;
+                    color: #666;
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-footer {
+                    border-top-color: var(--sc-dark-border);
+                    background: var(--sc-dark-bg);
+                    color: #bdc3c7;
+                }
+                
+                /* Sidebar Items */
+                .sc-sidebar-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 12px 20px;
+                    cursor: pointer;
+                    transition: var(--sc-transition);
+                    border: none;
+                    background: none;
+                    width: 100%;
+                    text-align: left;
+                    color: inherit;
+                    font-family: inherit;
+                    font-size: 14px;
+                    position: relative;
+                }
+                
+                .sc-sidebar-item:hover {
+                    background: var(--sc-light-hover);
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-item:hover {
+                    background: var(--sc-dark-hover);
+                }
+                
+                .sc-sidebar-item.active {
+                    background: var(--sc-light-active);
+                    color: #1976d2;
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-item.active {
+                    background: var(--sc-dark-active);
+                    color: #64b5f6;
+                }
+                
+                /* آیتم‌های قابل باز شدن */
+                .sc-sidebar-item[data-expandable="true"] {
+                    cursor: pointer;
+                }
+                
+                /* آیتم‌های قابل کلیک */
+                .sc-sidebar-item[data-clickable="true"] {
+                    cursor: pointer;
+                }
+                
+                /* آیتم‌های غیرفعال */
+                .sc-sidebar-item[data-clickable="false"][data-expandable="false"] {
+                    cursor: default;
+                    opacity: 0.6;
+                }
+                
+                .sc-sidebar-item .sc-item-icon {
+                    width: 20px;
+                    margin-right: 12px;
+                    text-align: center;
+                    font-size: 16px;
+                    flex-shrink: 0;
+                }
+                
+                .sc-sidebar-item .sc-item-content {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .sc-sidebar-item .sc-item-text {
+                    font-weight: 500;
+                    margin-bottom: 2px;
+                }
+                
+                .sc-sidebar-item .sc-item-description {
+                    font-size: 12px;
+                    color: #666;
+                    opacity: 0.8;
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-item .sc-item-description {
+                    color: #bdc3c7;
+                }
+                
+                .sc-sidebar-item .sc-item-arrow {
+                    margin-left: auto;
+                    transition: var(--sc-transition);
+                    font-size: 12px;
+                }
+                
+                .sc-sidebar-item.expanded .sc-item-arrow {
+                    transform: rotate(90deg);
+                }
+                
+                /* Nested items */
+                .sc-sidebar-item .sc-nested-items {
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease, padding 0.3s ease;
+                    background: rgba(0, 0, 0, 0.02);
+                    opacity: 0;
+                    transform: translateY(-10px);
+                    padding: 0;
+                }
+                
+                .sc-sidebar[theme="dark"] .sc-sidebar-item .sc-nested-items {
+                    background: rgba(255, 255, 255, 0.02);
+                }
+                
+                .sc-sidebar-item.expanded .sc-nested-items {
+                    max-height: 1000px;
+                    opacity: 1;
+                    transform: translateY(0);
+                    padding: 5px 0;
+                }
+                
+                .sc-sidebar-item .sc-nested-items .sc-sidebar-item {
+                    padding-left: 40px;
+                    font-size: 13px;
+                }
+                
+                .sc-sidebar-item .sc-nested-items .sc-sidebar-item .sc-item-icon {
+                    font-size: 14px;
+                }
+                
+                /* Collapsed state */
+                .sc-sidebar.collapsed {
+                    width: 60px !important;
+                }
+                
+                .sc-sidebar.collapsed .sc-sidebar-header h3,
+                .sc-sidebar.collapsed .sc-sidebar-search,
+                .sc-sidebar.collapsed .sc-sidebar-footer,
+                .sc-sidebar.collapsed .sc-item-text,
+                .sc-sidebar.collapsed .sc-item-description,
+                .sc-sidebar.collapsed .sc-item-arrow {
+                    display: none;
+                }
+                
+                .sc-sidebar.collapsed .sc-sidebar-item {
+                    padding: 15px 0;
+                    justify-content: center;
+                }
+                
+                .sc-sidebar.collapsed .sc-sidebar-item .sc-item-icon {
+                    margin: 0;
+                    font-size: 18px;
+                }
+                
+                .sc-sidebar.collapsed .sc-nested-items {
+                    display: none !important;
+                }
+                
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .sc-sidebar {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        z-index: 1000;
+                        transform: translateX(-100%);
+                        transition: transform 0.3s ease;
+                    }
+                    
+                    .sc-sidebar[position="right"] {
+                        left: auto;
+                        right: 0;
+                        transform: translateX(100%);
+                    }
+                    
+                    .sc-sidebar.mobile-open {
+                        transform: translateX(0);
+                    }
+                    
+                    .sc-sidebar-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 999;
+                        opacity: 0;
+                        visibility: hidden;
+                        transition: var(--sc-transition);
+                    }
+                    
+                    .sc-sidebar-overlay.visible {
+                        opacity: 1;
+                        visibility: visible;
+                    }
+                }
+                
+                /* Animations */
+                .sc-sidebar[animations="true"] .sc-sidebar-item {
+                    animation: slideIn 0.3s ease;
+                }
+                
+                @keyframes slideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateX(-20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                
+                .sc-sidebar[animations="true"] .sc-nested-items {
+                    animation: expandIn 0.3s ease;
+                }
+                
+                @keyframes expandIn {
+                    from {
+                        opacity: 0;
+                        max-height: 0;
+                    }
+                    to {
+                        opacity: 1;
+                        max-height: 1000px;
+                    }
+                }
+                
+                /* Utility classes */
+                .sc-hidden {
+                    display: none !important;
+                }
+                
+                .sc-visible {
+                    display: block !important;
+                }
+            </style>
+            
+            <div class="sc-sidebar ${this.state.collapsed ? 'collapsed' : ''} ${this.state.mobileOpen ? 'mobile-open' : ''}" 
+                 theme="${theme}" 
+                 position="${position}" 
+                 style="width: ${width};">
+                
+                ${showHeader ? `
+                    <div class="sc-sidebar-header">
+                        <h3>${this.getAttribute('title') || 'Sidebar'}</h3>
+                        ${collapsible ? `
+                            <button class="sc-toggle-btn" id="toggleBtn">
+                                <i class="fas fa-${this.state.collapsed ? 'bars' : 'times'}"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                ` : ''}
+                
+                ${searchable ? `
+                    <div class="sc-sidebar-search">
+                        <input type="text" 
+                               id="searchInput" 
+                               placeholder="Search..." 
+                               value="${this.state.searchQuery}">
+                    </div>
+                ` : ''}
+                
+                <div class="sc-sidebar-content" id="sidebarContent">
+                    <slot></slot>
+                </div>
+                
+                ${showFooter ? `
+                    <div class="sc-sidebar-footer">
+                        <span>© 2024 Sidebar Component</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            ${this.hasAttribute('responsive') ? `
+                <div class="sc-sidebar-overlay" id="overlay"></div>
+            ` : ''}
+        `;
+    }
+
+    setupEventListeners() {
+        // Toggle button
+        const toggleBtn = this.shadowRoot.getElementById('toggleBtn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => this.toggleCollapse());
         }
-      } else {
-        this.scSidebarConfig.items.push(item);
-      }
-      this.scSidebarRender();
-    }
-  }
 
-  scSidebarRemoveItem(key) {
-    this.scSidebarRemoveItemRecursive(this.scSidebarConfig.items, key);
-    this.scSidebarRender();
-  }
-
-  scSidebarRemoveItemRecursive(items, key) {
-    for (let i = items.length - 1; i >= 0; i--) {
-      if (items[i].key === key) {
-        items.splice(i, 1);
-        return true;
-      }
-      if (items[i].children) {
-        if (this.scSidebarRemoveItemRecursive(items[i].children, key)) {
-          return true;
+        // Search functionality
+        const searchInput = this.shadowRoot.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
         }
-      }
+
+        // Mobile overlay
+        const overlay = this.shadowRoot.getElementById('overlay');
+        if (overlay) {
+            overlay.addEventListener('click', () => this.closeMobile());
+        }
+
+        // Handle slot changes
+        const slot = this.shadowRoot.querySelector('slot');
+        if (slot) {
+            slot.addEventListener('slotchange', () => this.handleSlotChange());
+        }
+
+        // Keyboard navigation
+        this.addEventListener('keydown', (e) => this.handleKeyboard(e));
     }
-    return false;
-  }
 
-  scSidebarUpdateItem(key, updates) {
-    const item = this.scSidebarFindItemByKey(key);
-    if (item) {
-      Object.assign(item, updates);
-      this.scSidebarRender();
-    }
-  }
-
-  scSidebarFindItemByKey(key, items = null) {
-    items = items || this.scSidebarConfig.items;
-    
-    for (const item of items) {
-      if (item.key === key) return item;
-      if (item.children) {
-        const found = this.scSidebarFindItemByKey(key, item.children);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
-  scSidebarSetActiveItem(key) {
-    this.scSidebarState.activeItem = key;
-    this.scSidebarUpdateActiveStates();
-  }
-
-  scSidebarExpandItem(key) {
-    this.scSidebarState.expandedItems.add(key);
-    this.scSidebarUpdateExpandedStates();
-  }
-
-  scSidebarCollapseItem(key) {
-    this.scSidebarState.expandedItems.delete(key);
-    this.scSidebarUpdateExpandedStates();
-  }
-
-  scSidebarToggleItem(key) {
-    if (this.scSidebarState.expandedItems.has(key)) {
-      this.scSidebarCollapseItem(key);
-    } else {
-      this.scSidebarExpandItem(key);
-    }
-  }
-
-  scSidebarExpandAll() {
-    this.scSidebarExpandAllRecursive(this.scSidebarConfig.items);
-    this.scSidebarUpdateExpandedStates();
-  }
-
-  scSidebarExpandAllRecursive(items) {
-    items.forEach(item => {
-      if (item.children && item.children.length > 0) {
-        this.scSidebarState.expandedItems.add(item.key);
-        this.scSidebarExpandAllRecursive(item.children);
-      }
-    });
-  }
-
-  scSidebarCollapseAll() {
-    this.scSidebarState.expandedItems.clear();
-    this.scSidebarUpdateExpandedStates();
-  }
-
-  scSidebarCollapse() {
-    if (this.scSidebarConfig.collapsible) {
-      this.scSidebarState.isCollapsed = true;
-      this.scSidebarUpdateCollapsedState();
-    }
-  }
-
-  scSidebarExpand() {
-    if (this.scSidebarConfig.collapsible) {
-      this.scSidebarState.isCollapsed = false;
-      this.scSidebarUpdateCollapsedState();
-    }
-  }
-
-  scSidebarToggle() {
-    if (this.scSidebarConfig.collapsible) {
-      this.scSidebarState.isCollapsed = !this.scSidebarState.isCollapsed;
-      this.scSidebarUpdateCollapsedState();
-    }
-  }
-
-  // Data Source Methods
-  scSidebarSetDataSource(source, type = 'json') {
-    this.scSidebarConfig.dataSource = source;
-    this.scSidebarConfig.dataSourceType = type;
-    this.scSidebarInitializeDataSource();
-  }
-
-  scSidebarSetAPIEndpoint(endpoint, headers = {}) {
-    this.scSidebarConfig.apiEndpoint = endpoint;
-    this.scSidebarConfig.apiHeaders = headers;
-    this.scSidebarConfig.dataSourceType = 'api';
-    this.scSidebarInitializeDataSource();
-  }
-
-  scSidebarSetRefreshInterval(intervalMs) {
-    // Clear existing interval
-    if (this.scSidebarConfig.refreshInterval) {
-      clearInterval(this.scSidebarConfig.refreshInterval);
-    }
-    
-    if (intervalMs && intervalMs > 0) {
-      this.scSidebarConfig.refreshInterval = setInterval(this.scSidebarRefreshData, intervalMs);
-    }
-  }
-
-  async scSidebarRefreshData() {
-    if (this.scSidebarConfig.dataSourceType === 'api' && this.scSidebarConfig.apiEndpoint) {
-      try {
-        this.scSidebarState.isLoading = true;
-        this.scSidebarRender(); // Show loading state
+    handleSlotChange() {
+        const items = this.querySelectorAll('sc-sidebar-item');
         
-        const response = await fetch(this.scSidebarConfig.apiEndpoint, {
-          headers: this.scSidebarConfig.apiHeaders
+        // اگر آیتم‌های جدید اضافه شدن، قابلیت‌ها رو تحلیل کن
+        this.refreshItemCapabilities();
+        
+        // اگر آیتم قبلاً باز شده بود، دوباره بازش کن
+        items.forEach(item => {
+            if (item.key && this.state.expandedItems.includes(item.key)) {
+                item.expand();
+            }
         });
+    }
+
+    handleSearch(query) {
+        this.state.searchQuery = query;
+        const items = this.querySelectorAll('sc-sidebar-item');
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        items.forEach(item => {
+            const text = item.getAttribute('text') || '';
+            const description = item.getAttribute('description') || '';
+            const matches = query === '' || 
+                           text.toLowerCase().includes(query.toLowerCase()) ||
+                           description.toLowerCase().includes(query.toLowerCase());
+            
+            item.style.display = matches ? 'block' : 'none';
+        });
+
+        this.saveState();
+    }
+    
+    // متد جدید برای مدیریت آیتم‌های جدید
+    refreshItemCapabilities() {
+        this.querySelectorAll('sc-sidebar-item').forEach(item => {
+            if (item.analyzeItemCapabilities && typeof item.analyzeItemCapabilities === 'function') {
+                item.analyzeItemCapabilities();
+                item.render();
+            }
+        });
+    }
+
+    toggleCollapse() {
+        this.state.collapsed = !this.state.collapsed;
+        this.render();
+        this.setupEventListeners();
+        this.saveState();
+    }
+
+    closeMobile() {
+        this.state.mobileOpen = false;
+        this.render();
+        this.setupEventListeners();
+    }
+
+    openMobile() {
+        this.state.mobileOpen = true;
+        this.render();
+        this.setupEventListeners();
+    }
+
+    handleKeyboard(e) {
+        switch(e.key) {
+            case 'Escape':
+                if (this.state.mobileOpen) this.closeMobile();
+                break;
+            case 'Enter':
+                if (e.target.classList.contains('sc-sidebar-item')) {
+                    e.target.click();
+                }
+                break;
         }
-        
-        const data = await response.json();
-        this.scSidebarConfig.items = this.scSidebarProcessDataSource(data);
-        this.scSidebarState.lastRefresh = new Date();
-        
-        this.scSidebarSetupDefaultState();
-        this.scSidebarRender();
-        
-        // Dispatch refresh event
-        this.dispatchEvent(new CustomEvent('sc-sidebar-data-refreshed', {
-          detail: { data, timestamp: this.scSidebarState.lastRefresh },
-          bubbles: true,
-          composed: true
-        }));
-        
-      } catch (error) {
-        console.error('ScSidebar: Failed to refresh data from API:', error);
-        this.dispatchEvent(new CustomEvent('sc-sidebar-data-error', {
-          detail: { error: error.message },
-          bubbles: true,
-          composed: true
-        }));
-      } finally {
-        this.scSidebarState.isLoading = false;
-        this.scSidebarRender();
-      }
     }
-  }
 
-  // Private Methods
-  scSidebarInitializeComponent() {
-    this.scSidebarParseAttributes();
-    this.scSidebarParseItems();
-    this.scSidebarSetupDefaultState();
-  }
-
-  scSidebarParseAttributes() {
-    this.scSidebarConfig.collapsible = this.hasAttribute('collapsible');
-    this.scSidebarConfig.showHeader = this.hasAttribute('show-header');
-    this.scSidebarConfig.showFooter = this.hasAttribute('show-footer');
-    this.scSidebarConfig.searchable = this.hasAttribute('searchable');
-    this.scSidebarConfig.filterable = this.hasAttribute('filterable');
-    this.scSidebarConfig.animations = this.hasAttribute('animations');
-    this.scSidebarConfig.responsive = this.hasAttribute('responsive');
-    this.scSidebarConfig.autoExpandOnLoad = this.hasAttribute('auto-expand-on-load');
-    this.scSidebarConfig.rememberState = this.hasAttribute('remember-state');
-
-    this.scSidebarConfig.theme = this.getAttribute('theme') || 'light';
-    this.scSidebarConfig.position = this.getAttribute('position') || 'right';
-    this.scSidebarConfig.width = this.getAttribute('width') || '280px';
-    
-    // Data source attributes
-    this.scSidebarConfig.dataSource = this.getAttribute('data-source');
-    this.scSidebarConfig.apiEndpoint = this.getAttribute('api-endpoint');
-    this.scSidebarConfig.refreshInterval = parseInt(this.getAttribute('refresh-interval')) || null;
-  }
-
-  scSidebarParseItems() {
-    // Check for manual HTML items first
-    const manualItems = this.querySelectorAll('sc-sidebar-item');
-    if (manualItems.length > 0) {
-      this.scSidebarConfig.dataSourceType = 'manual';
-      this.scSidebarConfig.items = this.scSidebarParseManualItems(manualItems);
-      return;
-    }
-    
-    // Check for items attribute
-    const itemsData = this.getAttribute('items');
-    if (itemsData) {
-      try {
-        this.scSidebarConfig.items = JSON.parse(itemsData);
-        this.scSidebarConfig.dataSourceType = 'manual';
-      } catch (e) {
-        console.warn('ScSidebar: Invalid items JSON');
-      }
-    }
-  }
-
-  scSidebarParseManualItems(manualItems) {
-    const items = [];
-    
-    manualItems.forEach(item => {
-      const itemData = {
-        key: item.getAttribute('key') || `item-${Date.now()}-${Math.random()}`,
-        text: item.getAttribute('text') || item.textContent?.trim() || 'Untitled',
-        icon: item.getAttribute('icon') || null,
-        description: item.getAttribute('description') || null,
-        badge: item.getAttribute('badge') || null,
-        disabled: item.hasAttribute('disabled'),
-        behavior: item.getAttribute('behavior') || 'clickable',
-        category: item.getAttribute('category') || 'general'
-      };
-      
-      // Check for nested items
-      const nestedItems = item.querySelectorAll('sc-sidebar-item');
-      if (nestedItems.length > 0) {
-        itemData.children = this.scSidebarParseManualItems(nestedItems);
-      }
-      
-      items.push(itemData);
-    });
-    
-    return items;
-  }
-
-  scSidebarInitializeDataSource() {
-    if (!this.scSidebarConfig.dataSource && !this.scSidebarConfig.apiEndpoint) {
-      return;
-    }
-    
-    if (this.scSidebarConfig.dataSource) {
-      // Handle JSON file or direct data
-      if (this.scSidebarConfig.dataSource.startsWith('http') || this.scSidebarConfig.dataSource.startsWith('/')) {
-        // It's a URL/file path
-        this.scSidebarLoadJSONFile(this.scSidebarConfig.dataSource);
-      } else {
-        // It's direct JSON data
-        try {
-          const data = JSON.parse(this.scSidebarConfig.dataSource);
-          this.scSidebarConfig.items = this.scSidebarProcessDataSource(data);
-          this.scSidebarConfig.dataSourceType = 'json';
-          this.scSidebarSetupDefaultState();
-          this.scSidebarRender();
-        } catch (e) {
-          console.warn('ScSidebar: Invalid data source JSON');
+    createDefaultItemsIfNeeded() {
+        if (this.children.length === 0) {
+            this.defaultItems.forEach(itemData => {
+                const item = document.createElement('sc-sidebar-item');
+                Object.keys(itemData).forEach(key => {
+                    if (key !== 'children') {
+                        item.setAttribute(key, itemData[key]);
+                    }
+                });
+                
+                if (itemData.children) {
+                    itemData.children.forEach(childData => {
+                        const child = document.createElement('sc-sidebar-item');
+                        Object.keys(childData).forEach(key => {
+                            child.setAttribute(key, childData[key]);
+                        });
+                        item.appendChild(child);
+                    });
+                }
+                
+                this.appendChild(item);
+            });
+            
+            // بعد از اضافه کردن آیتم‌ها، قابلیت‌ها رو تحلیل کن
+            setTimeout(() => {
+                this.refreshItemCapabilities();
+            }, 0);
         }
-      }
-    } else if (this.scSidebarConfig.apiEndpoint) {
-      // Handle API endpoint
-      this.scSidebarConfig.dataSourceType = 'api';
-      this.scSidebarRefreshData();
-      
-      // Set up refresh interval if specified
-      if (this.scSidebarConfig.refreshInterval) {
-        this.scSidebarSetRefreshInterval(this.scSidebarConfig.refreshInterval);
-      }
-    }
-  }
-
-  async scSidebarLoadJSONFile(filePath) {
-    try {
-      this.scSidebarState.isLoading = true;
-      this.scSidebarRender(); // Show loading state
-      
-      const response = await fetch(filePath);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      this.scSidebarConfig.items = this.scSidebarProcessDataSource(data);
-      this.scSidebarConfig.dataSourceType = 'json';
-      
-      this.scSidebarSetupDefaultState();
-      this.scSidebarRender();
-      
-    } catch (error) {
-      console.error('ScSidebar: Failed to load JSON file:', error);
-      this.dispatchEvent(new CustomEvent('sc-sidebar-data-error', {
-        detail: { error: error.message },
-        bubbles: true,
-        composed: true
-      }));
-    } finally {
-      this.scSidebarState.isLoading = false;
-      this.scSidebarRender();
-    }
-  }
-
-  scSidebarProcessDataSource(data) {
-    // Handle different data structures
-    if (Array.isArray(data)) {
-      return data;
-    } else if (data && typeof data === 'object') {
-      // Check for common data structures
-      if (data.items && Array.isArray(data.items)) {
-        return data.items;
-      } else if (data.menu && Array.isArray(data.menu)) {
-        return data.menu;
-      } else if (data.navigation && Array.isArray(data.navigation)) {
-        return data.navigation;
-      } else if (data.sidebar && Array.isArray(data.sidebar)) {
-        return data.sidebar;
-      }
-    }
-    
-    // Return empty array if data structure is not recognized
-    console.warn('ScSidebar: Unrecognized data structure, returning empty array');
-    return [];
-  }
-
-  scSidebarSetupDefaultState() {
-    if (this.scSidebarConfig.items.length > 0) {
-      this.scSidebarState.activeItem = this.scSidebarConfig.items[0].key;
     }
 
-    if (this.scSidebarConfig.autoExpandOnLoad) {
-      this.scSidebarSetupAutoExpandItems();
-    }
-
-    this.scSidebarState.isMobile = window.innerWidth <= 768;
-  }
-
-  scSidebarSetupAutoExpandItems() {
-    this.scSidebarSetupAutoExpandRecursive(this.scSidebarConfig.items);
-  }
-
-  scSidebarSetupAutoExpandRecursive(items) {
-    items.forEach(item => {
-      if (item.behavior === 'always-open' || item.behavior === 'auto-expand') {
-        this.scSidebarState.expandedItems.add(item.key);
-      }
-      if (item.children && item.children.length > 0) {
-        this.scSidebarSetupAutoExpandRecursive(item.children);
-      }
-    });
-  }
-
-  scSidebarLoadSavedState() {
-    if (this.scSidebarConfig.rememberState) {
-      const savedState = localStorage.getItem(`sc-sidebar-${this.id || 'default'}`);
-      if (savedState) {
-        try {
-          const parsed = JSON.parse(savedState);
-          if (parsed.expandedItems) {
-            this.scSidebarState.expandedItems = new Set(parsed.expandedItems);
-          }
-          if (parsed.activeItem) {
-            this.scSidebarState.activeItem = parsed.activeItem;
-          }
-        } catch (e) {
-          console.warn('ScSidebar: Failed to parse saved state');
+    loadState() {
+        if (this.hasAttribute('remember-state')) {
+            const savedState = localStorage.getItem(`sc-sidebar-${this.id || 'default'}`);
+            if (savedState) {
+                try {
+                    const parsed = JSON.parse(savedState);
+                    this.state = { ...this.state, ...parsed };
+                } catch (e) {
+                    console.warn('Failed to load sidebar state:', e);
+                }
+            }
         }
-      }
-    }
-  }
-
-  scSidebarSaveState() {
-    if (this.scSidebarConfig.rememberState) {
-      const stateToSave = {
-        expandedItems: Array.from(this.scSidebarState.expandedItems),
-        activeItem: this.scSidebarState.activeItem
-      };
-      localStorage.setItem(`sc-sidebar-${this.id || 'default'}`, JSON.stringify(stateToSave));
-    }
-  }
-
-  scSidebarRender() {
-    const styles = this.scSidebarGetStyles();
-    const template = this.scSidebarGetTemplate();
-    
-    this.shadowRoot.innerHTML = `${styles}${template}`;
-    
-    // Set CSS custom properties for dynamic values
-    this.scSidebarSetCSSVariables();
-    
-    this.scSidebarSetupInternalEventListeners();
-  }
-
-  scSidebarGetStyles() {
-    // Load CSS from external file
-    return `<link rel="stylesheet" href="sidebar.css">`;
-  }
-
-  scSidebarGetTemplate() {
-    return `
-      <div class="sc-sidebar" data-sc-theme="${this.scSidebarConfig.theme}" data-sc-position="${this.scSidebarConfig.position}">
-        ${this.scSidebarConfig.collapsible ? '<button class="sc-sidebar-toggle" title="Toggle Sidebar">☰</button>' : ''}
-        
-        ${this.scSidebarConfig.showHeader ? `
-          <div class="sc-sidebar-header">
-            <div class="sc-sidebar-title">کامپوننت‌ها</div>
-            <div class="sc-sidebar-subtitle">کتابخانه ویژه</div>
-            ${this.scSidebarConfig.dataSourceType === 'api' ? `
-              <div class="sc-sidebar-refresh-info">
-                <small>آخرین بروزرسانی: ${this.scSidebarState.lastRefresh ? this.scSidebarState.lastRefresh.toLocaleTimeString('fa-IR') : 'هیچ'}</small>
-              </div>
-            ` : ''}
-          </div>
-        ` : ''}
-        
-        <div class="sc-sidebar-content">
-          ${this.scSidebarConfig.searchable ? `
-            <div class="sc-sidebar-search">
-              <input 
-                type="text" 
-                class="sc-sidebar-search-input" 
-                placeholder="جستجو در کامپوننت‌ها..."
-                aria-label="Search components"
-              >
-            </div>
-          ` : ''}
-          
-          <div class="sc-sidebar-items">
-            ${this.scSidebarState.isLoading ? this.scSidebarRenderLoadingState() : this.scSidebarRenderItems()}
-          </div>
-        </div>
-        
-        ${this.scSidebarConfig.showFooter ? `
-          <div class="sc-sidebar-footer">
-            <div class="sc-sidebar-footer-text">نسخه 1.0.0</div>
-            ${this.scSidebarConfig.dataSourceType === 'api' ? `
-              <button class="sc-sidebar-refresh-btn" title="بروزرسانی داده‌ها">🔄</button>
-            ` : ''}
-          </div>
-        ` : ''}
-      </div>
-    `;
-  }
-
-  scSidebarRenderLoadingState() {
-    return `
-      <div class="sc-sidebar-loading">
-        <div class="sc-sidebar-loading-spinner"></div>
-        <div class="sc-sidebar-loading-text">در حال بارگذاری...</div>
-      </div>
-    `;
-  }
-
-  scSidebarRenderItems(items = null, level = 0) {
-    items = items || this.scSidebarConfig.items;
-    
-    if (items.length === 0) {
-      return '<div class="sc-sidebar-item sc-sidebar-item-disabled">هیچ کامپوننتی یافت نشد</div>';
     }
 
-    return items.map(item => {
-      const isActive = item.key === this.scSidebarState.activeItem;
-      const isExpanded = this.scSidebarState.expandedItems.has(item.key);
-      const hasChildren = item.children && item.children.length > 0;
-      const isExpandable = hasChildren && (item.behavior === 'clickable' || item.behavior === 'auto-expand');
-      
-      return `
-        <div class="sc-sidebar-item ${isActive ? 'sc-sidebar-item-active' : ''} ${item.disabled ? 'sc-sidebar-item-disabled' : ''} ${isExpandable ? 'sc-sidebar-item-expandable' : ''} ${isExpanded ? 'sc-sidebar-item-expanded' : ''}" 
-             data-sc-sidebar-key="${item.key}" 
-             data-sc-sidebar-level="${level}">
-          
-          <div class="sc-sidebar-item-content">
-            ${item.icon ? `<i class="${item.icon}"></i>` : ''}
-            <div class="sc-sidebar-item-text">
-              <div class="sc-sidebar-item-title">${item.text}</div>
-              ${item.description ? `<div class="sc-sidebar-item-description">${item.description}</div>` : ''}
-            </div>
-            ${item.badge ? `<div class="sc-sidebar-item-badge">${item.badge}</div>` : ''}
-            ${isExpandable ? `<i class="sc-sidebar-item-expand-icon">▶</i>` : ''}
-          </div>
-          
-          ${hasChildren ? `
-            <div class="sc-sidebar-item-children ${isExpanded ? 'sc-sidebar-item-children-expanded' : 'sc-sidebar-item-children-collapsed'}">
-              ${this.scSidebarRenderItems(item.children, level + 1)}
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }).join('');
-  }
-
-  scSidebarSetupEventListeners() {
-    this.addEventListener('sc-sidebar-item-click', this.scSidebarHandleItemClick);
-    window.addEventListener('resize', () => {
-      this.scSidebarState.isMobile = window.innerWidth <= 768;
-    });
-  }
-
-  scSidebarSetupInternalEventListeners() {
-    const shadow = this.shadowRoot;
-    
-    shadow.querySelectorAll('.sc-sidebar-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        if (!item.classList.contains('sc-sidebar-item-disabled')) {
-          const key = item.dataset.scSidebarKey;
-          const isExpandable = item.classList.contains('sc-sidebar-item-expandable');
-          
-          if (isExpandable) {
-            e.stopPropagation();
-            this.scSidebarHandleItemExpand(key);
-          } else {
-            this.scSidebarHandleItemClick(e, key);
-          }
+    saveState() {
+        if (this.hasAttribute('remember-state')) {
+            const stateToSave = {
+                collapsed: this.state.collapsed,
+                searchQuery: this.state.searchQuery,
+                expandedItems: this.state.expandedItems
+            };
+            localStorage.setItem(`sc-sidebar-${this.id || 'default'}`, JSON.stringify(stateToSave));
         }
-      });
-    });
-
-    const searchInput = shadow.querySelector('.sc-sidebar-search-input');
-    if (searchInput) {
-      searchInput.addEventListener('input', this.scSidebarHandleSearch);
     }
 
-    const toggleBtn = shadow.querySelector('.sc-sidebar-toggle');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', this.scSidebarToggleSidebar);
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (oldValue !== newValue) {
+            this.render();
+            this.setupEventListeners();
+        }
     }
 
-    const refreshBtn = shadow.querySelector('.sc-sidebar-refresh-btn');
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', this.scSidebarRefreshData);
+    connectedCallback() {
+        this.loadState();
     }
-  }
 
-  // Event Handlers
-  scSidebarHandleItemClick(event, key) {
-    const item = this.scSidebarFindItemByKey(key);
-    if (item) {
-      this.scSidebarState.activeItem = key;
-      this.scSidebarUpdateActiveStates();
-      
-      this.dispatchEvent(new CustomEvent('sc-sidebar-item-click', {
-        detail: { item, key },
-        bubbles: true,
-        composed: true
-      }));
+    disconnectedCallback() {
+        this.saveState();
     }
-  }
-
-  scSidebarHandleItemExpand(key) {
-    this.scSidebarToggleItem(key);
-  }
-
-  scSidebarHandleSearch(event) {
-    this.scSidebarState.searchQuery = event.target.value;
-    this.scSidebarRender();
-  }
-
-  scSidebarToggleSidebar() {
-    this.scSidebarToggle();
-  }
-
-  // State Update Methods
-  scSidebarUpdateActiveStates() {
-    const shadow = this.shadowRoot;
-    shadow.querySelectorAll('.sc-sidebar-item').forEach(item => {
-      item.classList.toggle('sc-sidebar-item-active', item.dataset.scSidebarKey === this.scSidebarState.activeItem);
-    });
-  }
-
-  scSidebarUpdateExpandedStates() {
-    const shadow = this.shadowRoot;
-    shadow.querySelectorAll('.sc-sidebar-item').forEach(item => {
-      const key = item.dataset.scSidebarKey;
-      const isExpanded = this.scSidebarState.expandedItems.has(key);
-      
-      item.classList.toggle('sc-sidebar-item-expanded', isExpanded);
-      
-      const childrenContainer = item.querySelector('.sc-sidebar-item-children');
-      if (childrenContainer) {
-        childrenContainer.classList.toggle('sc-sidebar-item-children-expanded', isExpanded);
-        childrenContainer.classList.toggle('sc-sidebar-item-children-collapsed', !isExpanded);
-      }
-    });
-    
-    this.scSidebarSaveState();
-  }
-
-  scSidebarUpdateCollapsedState() {
-    const sidebar = this.shadowRoot.querySelector('.sc-sidebar');
-    sidebar.classList.toggle('sc-sidebar-collapsed', this.scSidebarState.isCollapsed);
-    
-    this.dispatchEvent(new CustomEvent('sc-sidebar-collapse', {
-      detail: { collapsed: this.scSidebarState.isCollapsed },
-      bubbles: true,
-      composed: true
-    }));
-  }
-
-  scSidebarUpdateConfig(key, value) {
-    switch (key) {
-      case 'theme':
-        this.scSidebarConfig.theme = value;
-        break;
-      case 'position':
-        this.scSidebarConfig.position = value;
-        break;
-      case 'width':
-        this.scSidebarConfig.width = value;
-        break;
-      case 'collapsible':
-        this.scSidebarConfig.collapsible = this.hasAttribute('collapsible');
-        break;
-      case 'show-header':
-        this.scSidebarConfig.showHeader = this.hasAttribute('show-header');
-        break;
-      case 'show-footer':
-        this.scSidebarConfig.showFooter = this.hasAttribute('show-footer');
-        break;
-      case 'searchable':
-        this.scSidebarConfig.searchable = this.hasAttribute('searchable');
-        break;
-      case 'filterable':
-        this.scSidebarConfig.filterable = this.hasAttribute('filterable');
-        break;
-      case 'animations':
-        this.scSidebarConfig.animations = this.hasAttribute('animations');
-        break;
-      case 'responsive':
-        this.scSidebarConfig.responsive = this.hasAttribute('responsive');
-        break;
-      case 'auto-expand-on-load':
-        this.scSidebarConfig.autoExpandOnLoad = this.hasAttribute('auto-expand-on-load');
-        break;
-      case 'remember-state':
-        this.scSidebarConfig.rememberState = this.hasAttribute('remember-state');
-        break;
-      case 'data-source':
-        this.scSidebarConfig.dataSource = value;
-        break;
-      case 'api-endpoint':
-        this.scSidebarConfig.apiEndpoint = value;
-        break;
-      case 'refresh-interval':
-        this.scSidebarConfig.refreshInterval = parseInt(value) || null;
-        break;
-    }
-    
-    // Update CSS variables when config changes
-    this.scSidebarSetCSSVariables();
-  }
-
-  scSidebarSetCSSVariables() {
-    if (this.shadowRoot) {
-      const sidebar = this.shadowRoot.querySelector('.sc-sidebar');
-      if (sidebar) {
-        sidebar.style.setProperty('--sc-sidebar-dynamic-width', this.scSidebarConfig.width);
-        sidebar.style.setProperty('--sc-sidebar-transition', this.scSidebarConfig.animations ? 'all 0.3s ease' : 'none');
-      }
-    }
-  }
 }
 
-// Sidebar Item Component for manual HTML usage
 class ScSidebarItem extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: "open" });
+    this.expanded = false;
+    this.init();
   }
 
   static get observedAttributes() {
-    return ['key', 'text', 'icon', 'description', 'badge', 'disabled', 'behavior', 'category'];
+    return ["key", "text", "icon", "description", "behavior"];
   }
 
-  connectedCallback() {
-    this.scSidebarItemRender();
+  init() {
+    this.analyzeItemCapabilities();
+    this.render();
+    this.setupEventListeners();
+  }
+
+  analyzeItemCapabilities() {
+    // تحلیل قابلیت‌های آیتم بر اساس محتوا و رفتار
+    const hasChildren = this.querySelectorAll("sc-sidebar-item").length > 0;
+    const behavior = this.getAttribute("behavior");
+
+    // اگر آیتم زیرمجموعه داره، قابل باز شدن هست
+    if (hasChildren) {
+      this.setAttribute("data-has-children", "true");
+      this.setAttribute("data-expandable", "true");
+    }
+
+    // اگر behavior مشخص نشده، هوشمندانه تشخیص بده
+    if (!behavior) {
+      if (hasChildren) {
+        this.setAttribute("behavior", "expandable");
+      } else {
+        this.setAttribute("behavior", "clickable");
+      }
+    }
+  }
+
+  render() {
+    const key = this.getAttribute("key") || "";
+    const text = this.getAttribute("text") || "";
+    const icon = this.getAttribute("icon") || "fas fa-circle";
+    const description = this.getAttribute("description") || "";
+    const behavior = this.getAttribute("behavior") || "clickable";
+
+    // هوشمندانه تشخیص بده که آیا این آیتم قابل باز شدن هست یا نه
+    const hasChildren = this.querySelectorAll("sc-sidebar-item").length > 0;
+    const isExpandable = hasChildren || behavior === "expandable";
+    const isClickable =
+      behavior === "clickable" || (!hasChildren && behavior !== "expandable");
+
+    this.shadowRoot.innerHTML = `
+            <link rel="stylesheet" href="/../../assets/libs/font-awesome/fontawsome.min.css">
+            <style>
+                /* Sidebar Item Styles */
+                .sc-sidebar-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 12px 20px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    border: none;
+                    background: none;
+                    width: 100%;
+                    text-align: left;
+                    color: inherit;
+                    font-family: inherit;
+                    font-size: 14px;
+                    position: relative;
+                }
+                
+                .sc-sidebar-item:hover {
+                    background: #f5f5f5;
+                }
+                
+                .sc-sidebar-item.active {
+                    background: #e3f2fd;
+                    color: #1976d2;
+                }
+                
+                /* آیتم‌های قابل باز شدن */
+                .sc-sidebar-item[data-expandable="true"] {
+                    cursor: pointer;
+                }
+                
+                /* آیتم‌های قابل کلیک */
+                .sc-sidebar-item[data-clickable="true"] {
+                    cursor: pointer;
+                }
+                
+                /* آیتم‌های غیرفعال */
+                .sc-sidebar-item[data-clickable="false"][data-expandable="false"] {
+                    cursor: default;
+                    opacity: 0.6;
+                }
+                
+                .sc-sidebar-item .sc-item-icon {
+                    width: 20px;
+                    margin-right: 12px;
+                    text-align: center;
+                    font-size: 16px;
+                    flex-shrink: 0;
+                }
+                
+                .sc-sidebar-item .sc-item-content {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .sc-sidebar-item .sc-item-text {
+                    font-weight: 500;
+                    margin-bottom: 2px;
+                }
+                
+                .sc-sidebar-item .sc-item-description {
+                    font-size: 12px;
+                    color: #666;
+                    opacity: 0.8;
+                }
+                
+                .sc-sidebar-item .sc-item-arrow {
+                    margin-left: auto;
+                    transition: all 0.3s ease;
+                    font-size: 12px;
+                }
+                
+                .sc-sidebar-item.expanded .sc-item-arrow {
+                    transform: rotate(90deg);
+                }
+                
+                /* Nested items */
+                .sc-nested-items {
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease, padding 0.3s ease;
+                    background: rgba(0, 0, 0, 0.02);
+                    opacity: 0;
+                    transform: translateY(-10px);
+                    padding: 0;
+                }
+                
+                .sc-sidebar-item.expanded .sc-nested-items {
+                    max-height: 1000px;
+                    opacity: 1;
+                    transform: translateY(0);
+                    padding: 5px 0;
+                }
+                
+                .sc-nested-items .sc-sidebar-item {
+                    padding-left: 40px;
+                    font-size: 13px;
+                }
+                
+                .sc-nested-items .sc-sidebar-item .sc-item-icon {
+                    font-size: 14px;
+                }
+            </style>
+            
+            <button class="sc-sidebar-item ${this.expanded ? "expanded" : ""}" 
+                    data-key="${key}"
+                    data-behavior="${behavior}"
+                    data-expandable="${isExpandable}"
+                    data-clickable="${isClickable}">
+                
+                <i class="sc-item-icon ${icon}"></i>
+                
+                <div class="sc-item-content">
+                    <div class="sc-item-text">${text}</div>
+                    ${
+                      description
+                        ? `<div class="sc-item-description">${description}</div>`
+                        : ""
+                    }
+                </div>
+                
+                ${
+                  isExpandable
+                    ? `
+                    <i class="sc-item-arrow fas fa-chevron-right"></i>
+                `
+                    : ""
+                }
+            </button>
+            
+            ${
+              isExpandable
+                ? `
+                <div class="sc-nested-items">
+                    <slot></slot>
+                </div>
+            `
+                : ""
+            }
+        `;
+  }
+
+  setupEventListeners() {
+     // اگر قبلاً listener اضافه شده، دوباره اضافه نشود
+    if (this._listenersSetup) return;
+    this._listenersSetup = true;
+
+    // Event Delegation: یک listener روی کل shadowRoot
+    this.shadowRoot.addEventListener('click', (e) => {
+        // نزدیک‌ترین button با کلاس sc-sidebar-item پیدا شود
+        const button = e.target.closest('.sc-sidebar-item');
+        if (!button) return;
+
+        // صدا زدن هندلر شما با خود button و ایونت
+        this.handleClick(button, e);
+    });
+  }
+
+  handleClick(button, e) {
+    e.preventDefault();
+    const isExpandable = button.dataset.expandable === "true";
+    const isClickable = button.dataset.clickable === "true";
+
+    // هوشمندانه تصمیم بگیر که چه کاری انجام بده
+    if (isExpandable && this.querySelectorAll("sc-sidebar-item").length > 0) {
+      this.toggleExpand();
+    } else if (isClickable) {
+      this.handleClickable();
+    }
+
+    // Dispatch custom event
+    this.dispatchEvent(
+      new CustomEvent("sidebar-item-click", {
+        detail: {
+          key: this.getAttribute("key"),
+          text: this.getAttribute("text"),
+          behavior: this.getAttribute("behavior"),
+        },
+        bubbles: true,
+      })
+    );
+  }
+
+  toggleExpand() {
+    this.expanded = !this.expanded;
+    this.render();
+    this.setupEventListeners();
+
+    // Update parent sidebar state
+    const sidebar = this.closest("sc-sidebar");
+    if (sidebar && sidebar.hasAttribute("remember-state")) {
+      const key = this.getAttribute("key");
+      if (this.expanded) {
+        if (!sidebar.state.expandedItems.includes(key)) {
+          sidebar.state.expandedItems.push(key);
+        }
+      } else {
+        sidebar.state.expandedItems = sidebar.state.expandedItems.filter(
+          (item) => item !== key
+        );
+      }
+      sidebar.saveState();
+    }
+  }
+
+  expand() {
+    this.expanded = true;
+    this.render();
+    this.setupEventListeners();
+  }
+
+  collapse() {
+    this.expanded = false;
+    this.render();
+    this.setupEventListeners();
+  }
+
+  handleClickable() {
+    // Add active state
+    const items =
+      this.closest("sc-sidebar").querySelectorAll("sc-sidebar-item");
+    items.forEach((item) => item.removeActive());
+    this.addActive();
+  }
+
+  addActive() {
+    const button = this.shadowRoot.querySelector(".sc-sidebar-item");
+    if (button) {
+      button.classList.add("active");
+    }
+  }
+
+  removeActive() {
+    const button = this.shadowRoot.querySelector(".sc-sidebar-item");
+    if (button) {
+      button.classList.remove("active");
+    }
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue !== newValue) {
-      this.scSidebarItemRender();
+      this.render();
+      this.setupEventListeners();
     }
   }
 
-  scSidebarItemRender() {
-    const key = this.getAttribute('key') || `item-${Date.now()}-${Math.random()}`;
-    const text = this.getAttribute('text') || this.textContent?.trim() || 'Untitled';
-    const icon = this.getAttribute('icon');
-    const description = this.getAttribute('description');
-    const badge = this.getAttribute('badge');
-    const disabled = this.hasAttribute('disabled');
-    const behavior = this.getAttribute('behavior') || 'clickable';
-    const category = this.getAttribute('category') || 'general';
+  connectedCallback() {
+    // Validate parent
+    const parentSidebar = this.closest("sc-sidebar");
+    if (!parentSidebar) {
+      console.error("sc-sidebar-item must be used inside sc-sidebar");
+      this.style.display = "none";
+      return;
+    }
 
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: block;
-          margin: 0.25rem 0;
-        }
-        
-        .sc-sidebar-item {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          padding: 0.75rem 1rem;
-          cursor: pointer;
-          border-radius: 0.5rem;
-          color: var(--sc-sidebar-text-secondary, #64748b);
-          font-weight: 500;
-          font-size: 0.875rem;
-          transition: all 0.2s ease;
-          border: 1px solid transparent;
-        }
-        
-        .sc-sidebar-item:hover {
-          background: var(--sc-sidebar-hover-bg, #f1f5f9);
-          color: var(--sc-sidebar-text-primary, #1e293b);
-        }
-        
-        .sc-sidebar-item[disabled] {
-          opacity: 0.5;
-          cursor: not-allowed;
-          pointer-events: none;
-        }
-        
-        .sc-sidebar-item-icon {
-          font-size: 1.125rem;
-          width: 20px;
-          text-align: center;
-          flex-shrink: 0;
-        }
-        
-        .sc-sidebar-item-content {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .sc-sidebar-item-text {
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .sc-sidebar-item-title {
-          font-weight: 600;
-          line-height: 1.4;
-        }
-        
-        .sc-sidebar-item-description {
-          font-size: 0.75rem;
-          opacity: 0.8;
-          margin-top: 0.25rem;
-          line-height: 1.3;
-        }
-        
-        .sc-sidebar-item-badge {
-          background: var(--sc-sidebar-accent, #06b6d4);
-          color: white;
-          font-size: 0.75rem;
-          font-weight: 600;
-          padding: 0.25rem 0.5rem;
-          border-radius: 0.375rem;
-          min-width: 20px;
-          text-align: center;
-          flex-shrink: 0;
-        }
-      </style>
-      
-      <div class="sc-sidebar-item" 
-           data-key="${key}"
-           data-text="${text}"
-           data-icon="${icon || ''}"
-           data-description="${description || ''}"
-           data-badge="${badge || ''}"
-           data-behavior="${behavior}"
-           data-category="${category}"
-           ${disabled ? 'disabled' : ''}>
-        
-        <div class="sc-sidebar-item-content">
-          ${icon ? `<i class="sc-sidebar-item-icon ${icon}"></i>` : ''}
-          <div class="sc-sidebar-item-text">
-            <div class="sc-sidebar-item-title">${text}</div>
-            ${description ? `<div class="sc-sidebar-item-description">${description}</div>` : ''}
-          </div>
-          ${badge ? `<div class="sc-sidebar-item-badge">${badge}</div>` : ''}
-        </div>
-        
-        <slot></slot>
-      </div>
-    `;
+    this.style.display = "block";
+
+    // اگر آیتم‌های جدید اضافه شدن، قابلیت‌ها رو دوباره تحلیل کن
+    setTimeout(() => {
+      this.analyzeItemCapabilities();
+      this.render();
+    }, 0);
   }
 }
 
 // Register the custom elements
 customElements.define('sc-sidebar', ScSidebar);
 customElements.define('sc-sidebar-item', ScSidebarItem);
-
-// Export for module usage
-export { ScSidebar, ScSidebarItem };

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            color: white;
+        }
+        
+        .content-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .content-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .content-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .demo-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        
+        .demo-text {
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn.primary {
+            background: #06b6d4;
+            border-color: #06b6d4;
+        }
+        
+        .btn.primary:hover {
+            background: #0891b2;
+            border-color: #0891b2;
+        }
+        
+        .status {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #06b6d4;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .feature-desc {
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Component -->
+        <sc-sidebar 
+            theme="light" 
+            position="left" 
+            width="280px" 
+            collapsible="true"
+            show-header="true"
+            show-footer="true"
+            searchable="true">
+        </sc-sidebar>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title">Special Sidebar</h1>
+                <p class="content-subtitle">A beautiful, modern, and feature-rich sidebar component</p>
+            </div>
+            
+            <div class="demo-section">
+                <h2 class="demo-title">🎯 Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3 class="feature-title">Modern Design</h3>
+                        <p class="feature-desc">Clean, beautiful UI with smooth animations and modern aesthetics</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3 class="feature-title">Smart Search</h3>
+                        <p class="feature-desc">Real-time search functionality with intelligent filtering</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3 class="feature-title">Responsive</h3>
+                        <p class="feature-desc">Works perfectly on all devices and screen sizes</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="feature-title">Fast & Light</h3>
+                        <p class="feature-desc">Optimized performance with minimal bundle size</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎭</div>
+                        <h3 class="feature-title">Themes</h3>
+                        <p class="feature-desc">Light and dark themes with easy customization</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3 class="feature-title">Flexible</h3>
+                        <p class="feature-desc">Highly configurable with extensive API options</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-section">
+                <h2 class="demo-title">🎮 Interactive Demo</h2>
+                <p class="demo-text">
+                    Use the controls below to interact with the sidebar. You can toggle themes, 
+                    change positions, and test various features in real-time.
+                </p>
+                
+                <div class="controls">
+                    <button class="btn" onclick="toggleTheme()">Toggle Theme</button>
+                    <button class="btn" onclick="togglePosition()">Toggle Position</button>
+                    <button class="btn" onclick="toggleCollapse()">Toggle Collapse</button>
+                    <button class="btn" onclick="addDemoItem()">Add Demo Item</button>
+                    <button class="btn primary" onclick="loadDemoData()">Load Demo Data</button>
+                </div>
+                
+                <div class="status" id="status">
+                    Status: Ready to interact
+                </div>
+            </div>
+            
+            <div class="demo-section">
+                <h2 class="demo-title">📚 Usage Examples</h2>
+                <p class="demo-text">
+                    The sidebar component is easy to use and highly customizable. Here are some examples:
+                </p>
+                
+                <div class="controls">
+                    <button class="btn" onclick="showBasicExample()">Basic Example</button>
+                    <button class="btn" onclick="showAdvancedExample()">Advanced Example</button>
+                    <button class="btn" onclick="showCustomExample()">Custom Example</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get sidebar reference
+        const sidebar = document.querySelector('sc-sidebar');
+        
+        // Demo data
+        const demoItems = [
+            {
+                id: 'dashboard',
+                text: 'Dashboard',
+                icon: 'fas fa-tachometer-alt',
+                description: 'Main dashboard view'
+            },
+            {
+                id: 'users',
+                text: 'Users',
+                icon: 'fas fa-users',
+                description: 'User management',
+                children: [
+                    {
+                        id: 'user-list',
+                        text: 'User List',
+                        icon: 'fas fa-list',
+                        description: 'View all users'
+                    },
+                    {
+                        id: 'add-user',
+                        text: 'Add User',
+                        icon: 'fas fa-user-plus',
+                        description: 'Create new user'
+                    }
+                ]
+            },
+            {
+                id: 'products',
+                text: 'Products',
+                icon: 'fas fa-box',
+                description: 'Product catalog',
+                children: [
+                    {
+                        id: 'product-list',
+                        text: 'Product List',
+                        icon: 'fas fa-th-large',
+                        description: 'Browse products'
+                    },
+                    {
+                        id: 'add-product',
+                        text: 'Add Product',
+                        icon: 'fas fa-plus',
+                        description: 'Create new product'
+                    },
+                    {
+                        id: 'categories',
+                        text: 'Categories',
+                        icon: 'fas fa-tags',
+                        description: 'Product categories'
+                    }
+                ]
+            },
+            {
+                id: 'analytics',
+                text: 'Analytics',
+                icon: 'fas fa-chart-bar',
+                description: 'Data analytics',
+                badge: 'New'
+            },
+            {
+                id: 'settings',
+                text: 'Settings',
+                icon: 'fas fa-cog',
+                description: 'Application settings'
+            }
+        ];
+
+        // Functions
+        function updateStatus(message) {
+            document.getElementById('status').textContent = `Status: ${message}`;
+        }
+
+        function toggleTheme() {
+            const currentTheme = sidebar.getAttribute('theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            sidebar.setAttribute('theme', newTheme);
+            updateStatus(`Theme changed to ${newTheme}`);
+        }
+
+        function togglePosition() {
+            const currentPosition = sidebar.getAttribute('position');
+            const newPosition = currentPosition === 'left' ? 'right' : 'left';
+            sidebar.setAttribute('position', newPosition);
+            updateStatus(`Position changed to ${newPosition}`);
+        }
+
+        function toggleCollapse() {
+            sidebar.toggleSidebar();
+            updateStatus('Sidebar toggled');
+        }
+
+        function addDemoItem() {
+            const newItem = {
+                id: `demo-${Date.now()}`,
+                text: `Demo Item ${Math.floor(Math.random() * 100)}`,
+                icon: 'fas fa-star',
+                description: 'Dynamic demo item'
+            };
+            sidebar.addItem(newItem);
+            updateStatus('Demo item added');
+        }
+
+        function loadDemoData() {
+            sidebar.items = demoItems;
+            updateStatus('Demo data loaded');
+        }
+
+        function showBasicExample() {
+            updateStatus('Basic example: <sc-sidebar theme="light" position="left"></sc-sidebar>');
+        }
+
+        function showAdvancedExample() {
+            updateStatus('Advanced example: <sc-sidebar theme="dark" position="right" searchable="true" collapsible="true"></sc-sidebar>');
+        }
+
+        function showCustomExample() {
+            updateStatus('Custom example: <sc-sidebar width="320px" show-footer="false" data-source="api"></sc-sidebar>');
+        }
+
+        // Event listeners
+        sidebar.addEventListener('item-click', (e) => {
+            updateStatus(`Item clicked: ${e.detail.itemId}`);
+        });
+
+        sidebar.addEventListener('sidebar-toggle', (e) => {
+            updateStatus(`Sidebar ${e.detail.isCollapsed ? 'collapsed' : 'expanded'}`);
+        });
+
+        sidebar.addEventListener('search', (e) => {
+            updateStatus(`Search query: "${e.detail.query}"`);
+        });
+
+        // Initialize with demo data
+        setTimeout(() => {
+            loadDemoData();
+        }, 1000);
+    </script>
+</body>
+</html>

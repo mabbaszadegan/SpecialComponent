@@ -1,0 +1,204 @@
+{
+  "title": "منوی اصلی",
+  "subtitle": "سیستم مدیریت محتوا",
+  "items": [
+    {
+      "id": "dashboard",
+      "text": "داشبورد",
+      "icon": "fas fa-tachometer-alt",
+      "description": "نمای کلی سیستم",
+      "badge": "جدید",
+      "behavior": "expandable",
+      "category": "main",
+      "children": [
+        {
+          "id": "overview",
+          "text": "نمای کلی",
+          "icon": "fas fa-chart-pie",
+          "description": "آمار و اطلاعات کلی",
+          "behavior": "clickable",
+          "category": "dashboard"
+        },
+        {
+          "id": "analytics",
+          "text": "تحلیل‌ها",
+          "icon": "fas fa-chart-line",
+          "description": "گزارش‌های تحلیلی",
+          "behavior": "clickable",
+          "category": "dashboard"
+        }
+      ]
+    },
+    {
+      "id": "content",
+      "text": "محتوا",
+      "icon": "fas fa-file-alt",
+      "description": "مدیریت محتوای سایت",
+      "behavior": "expandable",
+      "category": "main",
+      "children": [
+        {
+          "id": "articles",
+          "text": "مقالات",
+          "icon": "fas fa-newspaper",
+          "description": "مدیریت مقالات",
+          "badge": "12",
+          "behavior": "clickable",
+          "category": "content"
+        },
+        {
+          "id": "pages",
+          "text": "صفحات",
+          "icon": "fas fa-file",
+          "description": "مدیریت صفحات",
+          "behavior": "clickable",
+          "category": "content"
+        },
+        {
+          "id": "media",
+          "text": "رسانه‌ها",
+          "icon": "fas fa-images",
+          "description": "مدیریت فایل‌های رسانه‌ای",
+          "behavior": "clickable",
+          "category": "content"
+        }
+      ]
+    },
+    {
+      "id": "users",
+      "text": "کاربران",
+      "icon": "fas fa-users",
+      "description": "مدیریت کاربران سیستم",
+      "behavior": "expandable",
+      "category": "main",
+      "children": [
+        {
+          "id": "all-users",
+          "text": "همه کاربران",
+          "icon": "fas fa-user-check",
+          "description": "مشاهده و مدیریت کاربران",
+          "behavior": "clickable",
+          "category": "users"
+        },
+        {
+          "id": "roles",
+          "text": "نقش‌ها",
+          "icon": "fas fa-shield-alt",
+          "description": "مدیریت نقش‌ها و دسترسی‌ها",
+          "behavior": "clickable",
+          "category": "users"
+        },
+        {
+          "id": "permissions",
+          "text": "دسترسی‌ها",
+          "icon": "fas fa-key",
+          "description": "تنظیم دسترسی‌های کاربران",
+          "behavior": "clickable",
+          "category": "users"
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "text": "تنظیمات",
+      "icon": "fas fa-cog",
+      "description": "تنظیمات سیستم",
+      "behavior": "expandable",
+      "category": "main",
+      "children": [
+        {
+          "id": "general",
+          "text": "عمومی",
+          "icon": "fas fa-cogs",
+          "description": "تنظیمات عمومی سیستم",
+          "behavior": "clickable",
+          "category": "settings"
+        },
+        {
+          "id": "appearance",
+          "text": "ظاهر",
+          "icon": "fas fa-palette",
+          "description": "تنظیمات ظاهری و تم",
+          "behavior": "clickable",
+          "category": "settings"
+        },
+        {
+          "id": "security",
+          "text": "امنیت",
+          "icon": "fas fa-lock",
+          "description": "تنظیمات امنیتی",
+          "behavior": "clickable",
+          "category": "settings"
+        },
+        {
+          "id": "backup",
+          "text": "پشتیبان‌گیری",
+          "icon": "fas fa-database",
+          "description": "مدیریت پشتیبان‌ها",
+          "behavior": "clickable",
+          "category": "settings"
+        }
+      ]
+    },
+    {
+      "id": "tools",
+      "text": "ابزارها",
+      "icon": "fas fa-wrench",
+      "description": "ابزارهای کمکی سیستم",
+      "behavior": "expandable",
+      "category": "main",
+      "children": [
+        {
+          "id": "logs",
+          "text": "لاگ‌ها",
+          "icon": "fas fa-clipboard-list",
+          "description": "مشاهده لاگ‌های سیستم",
+          "behavior": "clickable",
+          "category": "tools"
+        },
+        {
+          "id": "maintenance",
+          "text": "نگهداری",
+          "icon": "fas fa-tools",
+          "description": "ابزارهای نگهداری سیستم",
+          "behavior": "clickable",
+          "category": "tools"
+        }
+      ]
+    },
+    {
+      "id": "help",
+      "text": "راهنما",
+      "icon": "fas fa-question-circle",
+      "description": "راهنمای استفاده از سیستم",
+      "behavior": "clickable",
+      "category": "main"
+    },
+    {
+      "id": "about",
+      "text": "درباره",
+      "icon": "fas fa-info-circle",
+      "description": "اطلاعات سیستم",
+      "behavior": "clickable",
+      "category": "main"
+    }
+  ],
+  "footer": {
+    "text": "نسخه 2.1.0 - آخرین بروزرسانی: امروز",
+    "showRefreshButton": true
+  },
+  "metadata": {
+    "version": "2.1.0",
+    "lastUpdate": "2024-01-15",
+    "totalItems": 25,
+    "mainCategories": 6,
+    "features": [
+      "جستجو و فیلتر",
+      "منوی چند سطحی",
+      "حفظ وضعیت",
+      "پشتیبانی از RTL",
+      "طراحی ریسپانسیو"
+    ]
+  }
+}
+

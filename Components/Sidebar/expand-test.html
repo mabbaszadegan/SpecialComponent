@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Expand/Collapse Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .demo-section {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .code-example {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .feature-list {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .feature-list h4 {
+            margin-top: 0;
+            color: #155724;
+        }
+        
+        .feature-list ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .feature-list li {
+            margin: 5px 0;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="demo-section">
+            <h2>Sidebar Expand/Collapse Demo</h2>
+            <div class="description">
+                This demo shows the expand/collapse functionality of sidebar menu items. 
+                Click on items with children to expand/collapse them.
+            </div>
+            
+            <div class="feature-list">
+                <h4>Features:</h4>
+                <ul>
+                    <li>✅ Automatic detection of expandable items</li>
+                    <li>✅ Smooth animations with CSS transitions</li>
+                    <li>✅ State persistence (remembers expanded items)</li>
+                    <li>✅ Keyboard navigation support</li>
+                    <li>✅ Responsive design</li>
+                    <li>✅ Theme support (light/dark)</li>
+                </ul>
+            </div>
+            
+            <sc-sidebar 
+                theme="light" 
+                position="left" 
+                width="300px"
+                show-header="true"
+                collapsible="true"
+                searchable="true"
+                animations="true"
+                remember-state="true"
+                title="Navigation Menu">
+                
+                <sc-sidebar-item 
+                    key="dashboard" 
+                    text="Dashboard" 
+                    icon="fas fa-tachometer-alt"
+                    description="System overview and statistics"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="users" 
+                    text="User Management" 
+                    icon="fas fa-users"
+                    description="Manage system users and permissions"
+                    behavior="expandable">
+                    
+                    <sc-sidebar-item 
+                        key="user-list" 
+                        text="User List" 
+                        icon="fas fa-list"
+                        description="View all registered users"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="add-user" 
+                        text="Add New User" 
+                        icon="fas fa-user-plus"
+                        description="Create a new user account"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="user-groups" 
+                        text="User Groups" 
+                        icon="fas fa-layer-group"
+                        description="Manage user groups and roles"
+                        behavior="expandable">
+                        
+                        <sc-sidebar-item 
+                            key="admin-group" 
+                            text="Administrators" 
+                            icon="fas fa-shield-alt"
+                            description="System administrators"
+                            behavior="clickable">
+                        </sc-sidebar-item>
+                        
+                        <sc-sidebar-item 
+                            key="moderator-group" 
+                            text="Moderators" 
+                            icon="fas fa-user-shield"
+                            description="Content moderators"
+                            behavior="clickable">
+                        </sc-sidebar-item>
+                        
+                        <sc-sidebar-item 
+                            key="user-group" 
+                            text="Regular Users" 
+                            icon="fas fa-user"
+                            description="Standard user accounts"
+                            behavior="clickable">
+                        </sc-sidebar-item>
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="content" 
+                    text="Content Management" 
+                    icon="fas fa-file-alt"
+                    description="Manage website content"
+                    behavior="expandable">
+                    
+                    <sc-sidebar-item 
+                        key="pages" 
+                        text="Pages" 
+                        icon="fas fa-file"
+                        description="Manage static pages"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="posts" 
+                        text="Blog Posts" 
+                        icon="fas fa-blog"
+                        description="Manage blog articles"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="media" 
+                        text="Media Library" 
+                        icon="fas fa-images"
+                        description="Manage images and files"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="settings" 
+                    text="Settings" 
+                    icon="fas fa-cog"
+                    description="System configuration"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="reports" 
+                    text="Reports & Analytics" 
+                    icon="fas fa-chart-bar"
+                    description="View system reports"
+                    behavior="expandable">
+                    
+                    <sc-sidebar-item 
+                        key="user-reports" 
+                        text="User Reports" 
+                        icon="fas fa-chart-line"
+                        description="User activity reports"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="system-reports" 
+                        text="System Reports" 
+                        icon="fas fa-server"
+                        description="System performance reports"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+            </sc-sidebar>
+        </div>
+        
+        <div class="demo-section">
+            <h2>How to Use</h2>
+            <div class="description">
+                The sidebar automatically detects which items can be expanded based on their children.
+            </div>
+            
+            <div class="code-example">
+&lt;sc-sidebar 
+    theme="light" 
+    show-header="true"
+    collapsible="true"
+    searchable="true"
+    remember-state="true"&gt;
+    
+    &lt;sc-sidebar-item 
+        key="users" 
+        text="User Management" 
+        behavior="expandable"&gt;
+        
+        &lt;sc-sidebar-item 
+            key="user-list" 
+            text="User List" 
+            behavior="clickable"&gt;
+        &lt;/sc-sidebar-item&gt;
+        
+        &lt;sc-sidebar-item 
+            key="add-user" 
+            text="Add User" 
+            behavior="clickable"&gt;
+        &lt;/sc-sidebar-item&gt;
+    &lt;/sc-sidebar-item&gt;
+&lt;/sc-sidebar&gt;
+            </div>
+            
+            <div class="feature-list">
+                <h4>Behavior Types:</h4>
+                <ul>
+                    <li><strong>expandable</strong> - Item can expand to show children</li>
+                    <li><strong>clickable</strong> - Item can be clicked for action</li>
+                    <li><strong>auto</strong> - Automatically determined based on content</li>
+                </ul>
+            </div>
+            
+            <div class="feature-list">
+                <h4>Key Features:</h4>
+                <ul>
+                    <li>Automatic arrow indicators for expandable items</li>
+                    <li>Smooth CSS transitions for expand/collapse</li>
+                    <li>State persistence across page reloads</li>
+                    <li>Responsive design for mobile devices</li>
+                    <li>Search functionality to filter items</li>
+                    <li>Keyboard navigation support</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="sidebar.js"></script>
+    <script>
+        // Add some interactive features for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            // Listen for sidebar item clicks
+            document.addEventListener('sidebar-item-click', function(e) {
+                console.log('Sidebar item clicked:', e.detail);
+                
+                // Show a simple notification
+                if (e.detail.behavior === 'clickable') {
+                    showNotification(`Clicked: ${e.detail.text}`);
+                }
+            });
+            
+            function showNotification(message) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #28a745;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 2000);
+            }
+            
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
