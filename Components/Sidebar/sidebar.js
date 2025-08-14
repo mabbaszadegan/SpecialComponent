@@ -1,5 +1,5 @@
 // Advanced Sidebar Web Components
-// <sc-sidebar> and <sc-sidebar-item> with full feature set
+// <sc-sidebar> and <sc-sidebar-item> with improved performance and smooth animations
 
 class ScSidebar extends HTMLElement {
     constructor() {
@@ -62,6 +62,35 @@ class ScSidebar extends HTMLElement {
         this.render();
         this.setupEventListeners();
         this.createDefaultItemsIfNeeded();
+        this.setupLayoutObserver();
+    }
+
+    setupLayoutObserver() {
+        return
+        // Check if we're already in the correct layout structure
+        const appContainer = document.querySelector('.app-container');
+        if (appContainer) {
+            // We're in the main app layout, no need to create wrapper
+            return;
+        }
+        
+        // Only create wrapper if we're not in the main app
+        if (!this.parentElement.classList.contains('sc-sidebar-wrapper')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'sc-sidebar-wrapper';
+            
+            // Move the sidebar into the wrapper
+            this.parentElement.insertBefore(wrapper, this);
+            wrapper.appendChild(this);
+            
+            // Create main content area if it doesn't exist
+            if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('sc-main-content')) {
+                const mainContent = document.createElement('div');
+                mainContent.className = 'sc-main-content';
+                mainContent.innerHTML = '<div class="sc-content-placeholder">Main content area - this will automatically adjust when sidebar collapses/expands</div>';
+                wrapper.appendChild(mainContent);
+            }
+        }
     }
 
     render() {
@@ -74,7 +103,8 @@ class ScSidebar extends HTMLElement {
         const collapsible = this.hasAttribute('collapsible');
 
         this.shadowRoot.innerHTML = `
-            <link rel="stylesheet" href="../../sidebar.css">
+            <link rel="stylesheet" href="/assets/libs/font-awesome/fontawsome.min.css">
+            <link rel="stylesheet" href="/Components/Sidebar/sidebar.css">
             
             <div class="sc-sidebar ${this.state.collapsed ? 'collapsed' : ''} ${this.state.mobileOpen ? 'mobile-open' : ''}" 
                  theme="${theme}" 
@@ -122,38 +152,62 @@ class ScSidebar extends HTMLElement {
         // Toggle button
         const toggleBtn = this.shadowRoot.getElementById('toggleBtn');
         if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => this.toggleCollapse());
+            // Remove existing listener if any
+            if (this._toggleHandler) {
+                toggleBtn.removeEventListener('click', this._toggleHandler);
+            }
+            this._toggleHandler = () => this.toggleCollapse();
+            toggleBtn.addEventListener('click', this._toggleHandler);
         }
 
         // Search functionality
         const searchInput = this.shadowRoot.getElementById('searchInput');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+            // Remove existing listener if any
+            if (this._searchHandler) {
+                searchInput.removeEventListener('input', this._searchHandler);
+            }
+            this._searchHandler = (e) => this.handleSearch(e.target.value);
+            searchInput.addEventListener('input', this._searchHandler);
         }
 
         // Mobile overlay
         const overlay = this.shadowRoot.getElementById('overlay');
         if (overlay) {
-            overlay.addEventListener('click', () => this.closeMobile());
+            // Remove existing listener if any
+            if (this._overlayHandler) {
+                overlay.removeEventListener('click', this._overlayHandler);
+            }
+            this._overlayHandler = () => this.closeMobile();
+            overlay.addEventListener('click', this._overlayHandler);
         }
 
         // Handle slot changes
         const slot = this.shadowRoot.querySelector('slot');
         if (slot) {
-            slot.addEventListener('slotchange', () => this.handleSlotChange());
+            // Remove existing listener if any
+            if (this._slotHandler) {
+                slot.removeEventListener('slotchange', this._slotHandler);
+            }
+            this._slotHandler = () => this.handleSlotChange();
+            slot.addEventListener('slotchange', this._slotHandler);
         }
 
         // Keyboard navigation
-        this.addEventListener('keydown', (e) => this.handleKeyboard(e));
+        if (this._keyboardHandler) {
+            this.removeEventListener('keydown', this._keyboardHandler);
+        }
+        this._keyboardHandler = (e) => this.handleKeyboard(e);
+        this.addEventListener('keydown', this._keyboardHandler);
     }
 
     handleSlotChange() {
         const items = this.querySelectorAll('sc-sidebar-item');
         
-        // اگر آیتم‌های جدید اضافه شدن، قابلیت‌ها رو تحلیل کن
+        // Analyze capabilities of new items
         this.refreshItemCapabilities();
         
-        // اگر آیتم قبلاً باز شده بود، دوباره بازش کن
+        // Restore expanded state for previously expanded items
         items.forEach(item => {
             if (item.key && this.state.expandedItems.includes(item.key)) {
                 item.expand();
@@ -172,39 +226,130 @@ class ScSidebar extends HTMLElement {
                            text.toLowerCase().includes(query.toLowerCase()) ||
                            description.toLowerCase().includes(query.toLowerCase());
             
-            item.style.display = matches ? 'block' : 'none';
+            // Use CSS classes instead of changing display property
+            if (matches) {
+                item.classList.remove('sc-hidden');
+            } else {
+                item.classList.add('sc-hidden');
+            }
         });
 
         this.saveState();
     }
     
-    // متد جدید برای مدیریت آیتم‌های جدید
     refreshItemCapabilities() {
         this.querySelectorAll('sc-sidebar-item').forEach(item => {
             if (item.analyzeItemCapabilities && typeof item.analyzeItemCapabilities === 'function') {
                 item.analyzeItemCapabilities();
-                item.render();
+                // Don't re-render, just update attributes
+                item.updateCapabilities();
             }
         });
     }
 
     toggleCollapse() {
+        // Toggle collapsed state
         this.state.collapsed = !this.state.collapsed;
-        this.render();
-        this.setupEventListeners();
+        
+        // Add transitioning class for smooth animations
+        this.classList.add('transitioning');
+        
+        // Update the collapsed class on the sidebar element
+        const sidebarElement = this.shadowRoot.querySelector('.sc-sidebar');
+        if (sidebarElement) {
+            sidebarElement.classList.toggle('collapsed', this.state.collapsed);
+        }
+        
+        // Update main content layout
+        this.updateMainContentLayout();
+        
+        // Save state
         this.saveState();
+        
+        // Remove transitioning class after animation completes
+        setTimeout(() => {
+            this.classList.remove('transitioning');
+        }, 400); // Match CSS transition duration
+    }
+
+    updateMainContentLayout() {
+        // Find the main content area and update its margin
+        const mainContent = document.querySelector('#container');
+        if (mainContent) {
+            if (this.state.collapsed) {
+                mainContent.style.marginLeft = '60px'; // Collapsed width
+                mainContent.style.transition = 'margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            } else {
+                mainContent.style.marginLeft = '280px'; // Expanded width
+                mainContent.style.transition = 'margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+        }
+        
+        // Also update the app container grid if it exists
+        const appContainer = document.querySelector('.app-container');
+        if (appContainer) {
+            if (this.state.collapsed) {
+                appContainer.style.gridTemplateColumns = '60px 1fr';
+            } else {
+                appContainer.style.gridTemplateColumns = '280px 1fr';
+            }
+            appContainer.style.transition = 'grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+        }
     }
 
     closeMobile() {
         this.state.mobileOpen = false;
-        this.render();
-        this.setupEventListeners();
+        
+        // Update the mobile-open class
+        const sidebarElement = this.shadowRoot.querySelector('.sc-sidebar');
+        if (sidebarElement) {
+            sidebarElement.classList.remove('mobile-open');
+        }
+        
+        // Hide the overlay
+        const overlay = this.shadowRoot.getElementById('overlay');
+        if (overlay) {
+            overlay.classList.remove('visible');
+        }
+        
+        // Update main layout for mobile
+        this.updateMobileLayout();
     }
 
     openMobile() {
         this.state.mobileOpen = true;
-        this.render();
-        this.setupEventListeners();
+        
+        // Update the mobile-open class
+        const sidebarElement = this.shadowRoot.querySelector('.sc-sidebar');
+        if (sidebarElement) {
+            sidebarElement.classList.add('mobile-open');
+        }
+        
+        // Show the overlay
+        const overlay = this.shadowRoot.getElementById('overlay');
+        if (overlay) {
+            overlay.classList.add('visible');
+        }
+        
+        // Update main layout for mobile
+        this.updateMobileLayout();
+    }
+    
+    updateMobileLayout() {
+        // Update main content margin for mobile
+        const mainContent = document.querySelector('#container');
+        if (mainContent) {
+            if (this.state.mobileOpen) {
+                mainContent.style.marginLeft = '0';
+            } else {
+                // Restore original margin based on sidebar state
+                if (this.state.collapsed) {
+                    mainContent.style.marginLeft = '60px';
+                } else {
+                    mainContent.style.marginLeft = '280px';
+                }
+            }
+        }
     }
 
     handleKeyboard(e) {
@@ -243,7 +388,7 @@ class ScSidebar extends HTMLElement {
                 this.appendChild(item);
             });
             
-            // بعد از اضافه کردن آیتم‌ها، قابلیت‌ها رو تحلیل کن
+            // Analyze capabilities after adding items
             setTimeout(() => {
                 this.refreshItemCapabilities();
             }, 0);
@@ -284,227 +429,328 @@ class ScSidebar extends HTMLElement {
 
     connectedCallback() {
         this.loadState();
+        this.setupLayoutObserver();
     }
 
     disconnectedCallback() {
         this.saveState();
+        // Clean up event listeners
+        if (this._toggleHandler) {
+            const toggleBtn = this.shadowRoot.getElementById('toggleBtn');
+            if (toggleBtn) toggleBtn.removeEventListener('click', this._toggleHandler);
+        }
+        if (this._searchHandler) {
+            const searchInput = this.shadowRoot.getElementById('searchInput');
+            if (searchInput) searchInput.removeEventListener('input', this._searchHandler);
+        }
+        if (this._overlayHandler) {
+            const overlay = this.shadowRoot.getElementById('overlay');
+            if (overlay) overlay.removeEventListener('click', this._overlayHandler);
+        }
+        if (this._slotHandler) {
+            const slot = this.shadowRoot.querySelector('slot');
+            if (slot) slot.removeEventListener('slotchange', this._slotHandler);
+        }
+        if (this._keyboardHandler) {
+            this.removeEventListener('keydown', this._keyboardHandler);
+        }
     }
 }
 
 class ScSidebarItem extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: "open" });
-    this.expanded = false;
-    this.init();
-  }
-
-  static get observedAttributes() {
-    return ["key", "text", "icon", "description", "behavior"];
-  }
-
-  init() {
-    this.analyzeItemCapabilities();
-    this.render();
-    this.setupEventListeners();
-  }
-
-  analyzeItemCapabilities() {
-    // تحلیل قابلیت‌های آیتم بر اساس محتوا و رفتار
-    const hasChildren = this.querySelectorAll("sc-sidebar-item").length > 0;
-    const behavior = this.getAttribute("behavior");
-
-    // اگر آیتم زیرمجموعه داره، قابل باز شدن هست
-    if (hasChildren) {
-      this.setAttribute("data-has-children", "true");
-      this.setAttribute("data-expandable", "true");
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.expanded = false;
+        this.init();
     }
 
-    // اگر behavior مشخص نشده، هوشمندانه تشخیص بده
-    if (!behavior) {
-      if (hasChildren) {
-        this.setAttribute("behavior", "expandable");
-      } else {
-        this.setAttribute("behavior", "clickable");
-      }
+    static get observedAttributes() {
+        return ['key', 'text', 'icon', 'description', 'behavior'];
     }
-  }
 
-  render() {
-    const key = this.getAttribute("key") || "";
-    const text = this.getAttribute("text") || "";
-    const icon = this.getAttribute("icon") || "fas fa-circle";
-    const description = this.getAttribute("description") || "";
-    const behavior = this.getAttribute("behavior") || "clickable";
+    init() {
+        this.analyzeItemCapabilities();
+        this.render();
+        this.setupEventListeners();
+    }
 
-    // هوشمندانه تشخیص بده که آیا این آیتم قابل باز شدن هست یا نه
-    const hasChildren = this.querySelectorAll("sc-sidebar-item").length > 0;
-    const isExpandable = hasChildren || behavior === "expandable";
-    const isClickable =
-      behavior === "clickable" || (!hasChildren && behavior !== "expandable");
+    analyzeItemCapabilities() {
+        // Analyze item capabilities based on content and behavior
+        const hasChildren = this.querySelectorAll('sc-sidebar-item').length > 0;
+        const behavior = this.getAttribute('behavior');
 
-    this.shadowRoot.innerHTML = `
-            <link rel="stylesheet" href="../../sidebar.css">
+        // If item has children, it's expandable
+        if (hasChildren) {
+            this.setAttribute('data-has-children', 'true');
+            this.setAttribute('data-expandable', 'true');
+        }
+
+        // If behavior is not specified, intelligently determine it
+        if (!behavior) {
+            if (hasChildren) {
+                this.setAttribute('behavior', 'expandable');
+            } else {
+                this.setAttribute('behavior', 'clickable');
+            }
+        }
+    }
+
+    updateCapabilities() {
+        // Update capabilities without re-rendering
+        this.analyzeItemCapabilities();
+        
+        // Update data attributes on existing elements
+        const button = this.shadowRoot.querySelector('.sc-sidebar-item');
+        if (button) {
+            button.dataset.expandable = this.hasAttribute('data-expandable');
+            button.dataset.clickable = this.hasAttribute('data-clickable');
+            button.dataset.tooltip = this.getAttribute('text') || '';
+        }
+    }
+
+    render() {
+        const key = this.getAttribute('key') || '';
+        const text = this.getAttribute('text') || '';
+        const icon = this.getAttribute('icon') || 'fas fa-circle';
+        const description = this.getAttribute('description') || '';
+        const behavior = this.getAttribute('behavior') || 'clickable';
+
+        // Intelligently determine if this item is expandable
+        const hasChildren = this.querySelectorAll('sc-sidebar-item').length > 0;
+        const isExpandable = hasChildren || behavior === 'expandable';
+        const isClickable = behavior === 'clickable' || (!hasChildren && behavior !== 'expandable');
+
+        this.shadowRoot.innerHTML = `
+            <link rel="stylesheet" href="/assets/libs/font-awesome/fontawsome.min.css">
+            <link rel="stylesheet" href="/Components/Sidebar/sidebar.css">
             
-            <button class="sc-sidebar-item ${this.expanded ? "expanded" : ""}" 
+            <button class="sc-sidebar-item ${this.expanded ? 'expanded' : ''}" 
                     data-key="${key}"
                     data-behavior="${behavior}"
                     data-expandable="${isExpandable}"
-                    data-clickable="${isClickable}">
+                    data-clickable="${isClickable}"
+                    data-tooltip="${text}">
                 
                 <i class="sc-item-icon ${icon}"></i>
                 
                 <div class="sc-item-content">
                     <div class="sc-item-text">${text}</div>
-                    ${
-                      description
-                        ? `<div class="sc-item-description">${description}</div>`
-                        : ""
-                    }
+                    ${description ? `<div class="sc-item-description">${description}</div>` : ''}
                 </div>
                 
-                ${
-                  isExpandable
-                    ? `
-                    <i class="sc-item-arrow fas fa-chevron-right"></i>
-                `
-                    : ""
-                }
+                ${isExpandable ? `<i class="sc-item-arrow fas fa-chevron-right"></i>` : ''}
             </button>
             
-            ${
-              isExpandable
-                ? `
-                <div class="sc-nested-items">
+            ${isExpandable ? `
+                <div class="sc-nested-items ${this.expanded ? 'expanded' : ''}">
                     <slot></slot>
                 </div>
-            `
-                : ""
-            }
+            ` : ''}
         `;
-  }
-
-  setupEventListeners() {
-     // اگر قبلاً listener اضافه شده، دوباره اضافه نشود
-    if (this._listenersSetup) return;
-    this._listenersSetup = true;
-
-    // Event Delegation: یک listener روی کل shadowRoot
-    this.shadowRoot.addEventListener('click', (e) => {
-        // نزدیک‌ترین button با کلاس sc-sidebar-item پیدا شود
-        const button = e.target.closest('.sc-sidebar-item');
-        if (!button) return;
-
-        // صدا زدن هندلر شما با خود button و ایونت
-        this.handleClick(button, e);
-    });
-  }
-
-  handleClick(button, e) {
-    e.preventDefault();
-    const isExpandable = button.dataset.expandable === "true";
-    const isClickable = button.dataset.clickable === "true";
-
-    // هوشمندانه تصمیم بگیر که چه کاری انجام بده
-    if (isExpandable && this.querySelectorAll("sc-sidebar-item").length > 0) {
-      this.toggleExpand();
-    } else if (isClickable) {
-      this.handleClickable();
     }
 
-    // Dispatch custom event
-    this.dispatchEvent(
-      new CustomEvent("sidebar-item-click", {
-        detail: {
-          key: this.getAttribute("key"),
-          text: this.getAttribute("text"),
-          behavior: this.getAttribute("behavior"),
-        },
-        bubbles: true,
-      })
-    );
-  }
-
-  toggleExpand() {
-    this.expanded = !this.expanded;
-    this.render();
-    this.setupEventListeners();
-
-    // Update parent sidebar state
-    const sidebar = this.closest("sc-sidebar");
-    if (sidebar && sidebar.hasAttribute("remember-state")) {
-      const key = this.getAttribute("key");
-      if (this.expanded) {
-        if (!sidebar.state.expandedItems.includes(key)) {
-          sidebar.state.expandedItems.push(key);
+    setupEventListeners() {
+        // Event delegation: single listener on shadowRoot
+        if (this._clickHandler) {
+            this.shadowRoot.removeEventListener('click', this._clickHandler);
         }
-      } else {
-        sidebar.state.expandedItems = sidebar.state.expandedItems.filter(
-          (item) => item !== key
+        
+        this._clickHandler = (e) => {
+            // Prevent event bubbling
+            e.stopPropagation();
+            
+            // Find closest button with class sc-sidebar-item
+            const button = e.target.closest('.sc-sidebar-item');
+            if (!button) return;
+
+            // Call handler with button and event
+            this.handleClick(button, e);
+        };
+        
+        this.shadowRoot.addEventListener('click', this._clickHandler);
+    }
+
+    handleClick(button, e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isExpandable = button.dataset.expandable === 'true';
+        const isClickable = button.dataset.clickable === 'true';
+
+        // Intelligently decide what action to take
+        if (isExpandable && this.querySelectorAll('sc-sidebar-item').length > 0) {
+            this.toggleExpand();
+        } else if (isClickable) {
+            this.handleClickable();
+        }
+
+        // Dispatch custom event
+        this.dispatchEvent(
+            new CustomEvent('sidebar-item-click', {
+                detail: {
+                    key: this.getAttribute('key'),
+                    text: this.getAttribute('text'),
+                    behavior: this.getAttribute('behavior'),
+                },
+                bubbles: true,
+            })
         );
-      }
-      sidebar.saveState();
-    }
-  }
-
-  expand() {
-    this.expanded = true;
-    this.render();
-    this.setupEventListeners();
-  }
-
-  collapse() {
-    this.expanded = false;
-    this.render();
-    this.setupEventListeners();
-  }
-
-  handleClickable() {
-    // Add active state
-    const items =
-      this.closest("sc-sidebar").querySelectorAll("sc-sidebar-item");
-    items.forEach((item) => item.removeActive());
-    this.addActive();
-  }
-
-  addActive() {
-    const button = this.shadowRoot.querySelector(".sc-sidebar-item");
-    if (button) {
-      button.classList.add("active");
-    }
-  }
-
-  removeActive() {
-    const button = this.shadowRoot.querySelector(".sc-sidebar-item");
-    if (button) {
-      button.classList.remove("active");
-    }
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue) {
-      this.render();
-      this.setupEventListeners();
-    }
-  }
-
-  connectedCallback() {
-    // Validate parent
-    const parentSidebar = this.closest("sc-sidebar");
-    if (!parentSidebar) {
-      console.error("sc-sidebar-item must be used inside sc-sidebar");
-      this.style.display = "none";
-      return;
     }
 
-    this.style.display = "block";
+    toggleExpand() {
+        this.expanded = !this.expanded;
+        
+        // Add transitioning class for smooth animations
+        const sidebar = this.closest('sc-sidebar');
+        if (sidebar) {
+            sidebar.classList.add('transitioning');
+        }
+        
+        // Update classes for CSS transitions
+        const button = this.shadowRoot.querySelector('.sc-sidebar-item');
+        const nestedItems = this.shadowRoot.querySelector('.sc-nested-items');
+        
+        if (button) {
+            button.classList.toggle('expanded', this.expanded);
+        }
+        
+        if (nestedItems) {
+            nestedItems.classList.toggle('expanded', this.expanded);
+        }
+        
+        // Remove transitioning class after animation completes
+        setTimeout(() => {
+            if (sidebar) {
+                sidebar.classList.remove('transitioning');
+            }
+        }, 400); // Match CSS transition duration
 
-    // اگر آیتم‌های جدید اضافه شدن، قابلیت‌ها رو دوباره تحلیل کن
-    setTimeout(() => {
-      this.analyzeItemCapabilities();
-      this.render();
-    }, 0);
-  }
+        // Update parent sidebar state
+        if (sidebar && sidebar.hasAttribute('remember-state')) {
+            const key = this.getAttribute('key');
+            if (this.expanded) {
+                if (!sidebar.state.expandedItems.includes(key)) {
+                    sidebar.state.expandedItems.push(key);
+                }
+            } else {
+                sidebar.state.expandedItems = sidebar.state.expandedItems.filter(
+                    (item) => item !== key
+                );
+            }
+            sidebar.saveState();
+        }
+    }
+
+    expand() {
+        this.expanded = true;
+        
+        // Add transitioning class for smooth animations
+        const sidebar = this.closest('sc-sidebar');
+        if (sidebar) {
+            sidebar.classList.add('transitioning');
+        }
+        
+        // Update classes for CSS transitions
+        const button = this.shadowRoot.querySelector('.sc-sidebar-item');
+        const nestedItems = this.shadowRoot.querySelector('.sc-nested-items');
+        
+        if (button) {
+            button.classList.add('expanded');
+        }
+        
+        if (nestedItems) {
+            nestedItems.classList.add('expanded');
+        }
+        
+        // Remove transitioning class after animation completes
+        setTimeout(() => {
+            if (sidebar) {
+                sidebar.classList.remove('transitioning');
+            }
+        }, 400); // Match CSS transition duration
+    }
+
+    collapse() {
+        this.expanded = false;
+        
+        // Add transitioning class for smooth animations
+        const sidebar = this.closest('sc-sidebar');
+        if (sidebar) {
+            sidebar.classList.add('transitioning');
+        }
+        
+        // Update classes for CSS transitions
+        const button = this.shadowRoot.querySelector('.sc-sidebar-item');
+        const nestedItems = this.shadowRoot.querySelector('.sc-nested-items');
+        
+        if (button) {
+            button.classList.remove('expanded');
+        }
+        
+        if (nestedItems) {
+            nestedItems.classList.remove('expanded');
+        }
+        
+        // Remove transitioning class after animation completes
+        setTimeout(() => {
+            if (sidebar) {
+                sidebar.classList.remove('transitioning');
+            }
+        }, 400); // Match CSS transition duration
+    }
+
+    handleClickable() {
+        // Add active state
+        const items = this.closest('sc-sidebar').querySelectorAll('sc-sidebar-item');
+        items.forEach((item) => item.removeActive());
+        this.addActive();
+    }
+
+    addActive() {
+        const button = this.shadowRoot.querySelector('.sc-sidebar-item');
+        if (button) {
+            button.classList.add('active');
+        }
+    }
+
+    removeActive() {
+        const button = this.shadowRoot.querySelector('.sc-sidebar-item');
+        if (button) {
+            button.classList.remove('active');
+        }
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (oldValue !== newValue) {
+            // Only update capabilities, don't re-render
+            this.updateCapabilities();
+        }
+    }
+
+    connectedCallback() {
+        // Validate parent
+        const parentSidebar = this.closest('sc-sidebar');
+        if (!parentSidebar) {
+            console.error('sc-sidebar-item must be used inside sc-sidebar');
+            this.style.display = 'none';
+            return;
+        }
+
+        this.style.display = 'block';
+
+        // Analyze capabilities after adding items
+        setTimeout(() => {
+            this.analyzeItemCapabilities();
+        }, 0);
+    }
+
+    disconnectedCallback() {
+        // Clean up event listeners
+        if (this._clickHandler) {
+            this.shadowRoot.removeEventListener('click', this._clickHandler);
+        }
+    }
 }
 
 // Register the custom elements

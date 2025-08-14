@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Animations Sidebar Demo</title>
+    
+    <!-- Load FontAwesome -->
+    <link rel="stylesheet" href="/SpecialComponent/assets/libs/font-awesome/fontawsome.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .demo-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .demo-header h1 {
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .demo-header p {
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+        
+        .demo-controls {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .control-btn.secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+        
+        .control-btn.success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .control-btn.warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+        
+        .control-btn.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+        }
+        
+        .sidebar-wrapper {
+            display: flex;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 270px; /* Sidebar width + margin */
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px;
+        }
+        
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px; /* Collapsed sidebar width + margin */
+        }
+        
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .content-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .content-section p {
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 1em;
+        }
+        
+        .animation-demo {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .animation-demo h3 {
+            color: #1976d2;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .animation-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4caf50;
+            margin: 0 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .status-indicator.active {
+            background: #28a745;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        }
+        
+        .status-indicator.inactive {
+            background: #dc3545;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+        }
+        
+        .responsive-info {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border: 2px solid #28a745;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .responsive-info h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+        
+        .responsive-info ul {
+            margin-left: 25px;
+        }
+        
+        .responsive-info li {
+            margin-bottom: 8px;
+            color: #155724;
+            font-weight: 500;
+        }
+        
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #ffc107;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .metric-label {
+            color: #856404;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin: 10px;
+                margin-left: 10px;
+            }
+            
+            .sidebar.collapsed + .main-content {
+                margin-left: 10px;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .demo-header h1 {
+                font-size: 2em;
+            }
+        }
+        
+        /* Smooth scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1>🎭 Smooth Animations Sidebar</h1>
+        <p>تجربه کاربری فوق‌العاده با انیمیشن‌های نرم و ریسپانسیو</p>
+    </div>
+    
+    <div class="demo-controls">
+        <button class="control-btn" onclick="toggleSidebar()">🔄 Toggle Sidebar</button>
+        <button class="control-btn secondary" onclick="toggleTheme()">🎨 Toggle Theme</button>
+        <button class="control-btn success" onclick="expandAll()">📂 Expand All</button>
+        <button class="control-btn warning" onclick="collapseAll()">📁 Collapse All</button>
+        <button class="control-btn danger" onclick="togglePosition()">↔️ Toggle Position</button>
+        <button class="control-btn" onclick="showPerformance()">⚡ Performance</button>
+    </div>
+    
+    <div class="sidebar-wrapper">
+        <sc-sidebar 
+            id="mainSidebar"
+            theme="light" 
+            position="left" 
+            width="250px" 
+            collapsible 
+            show-header 
+            show-footer 
+            searchable 
+            animations 
+            responsive 
+            remember-state
+            title="Navigation Menu">
+            
+            <sc-sidebar-item 
+                key="dashboard" 
+                text="Dashboard" 
+                icon="fas fa-tachometer-alt" 
+                description="System overview"
+                behavior="clickable">
+            </sc-sidebar-item>
+            
+            <sc-sidebar-item 
+                key="users" 
+                text="Users" 
+                icon="fas fa-users" 
+                description="User management"
+                behavior="expandable">
+                
+                <sc-sidebar-item 
+                    key="user-list" 
+                    text="User List" 
+                    icon="fas fa-list" 
+                    description="View all users"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="add-user" 
+                    text="Add User" 
+                    icon="fas fa-user-plus" 
+                    description="Create new user"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="user-groups" 
+                    text="User Groups" 
+                    icon="fas fa-layer-group" 
+                    description="Manage user groups"
+                    behavior="expandable">
+                    
+                    <sc-sidebar-item 
+                        key="admin-group" 
+                        text="Admin Group" 
+                        icon="fas fa-shield-alt" 
+                        description="Administrators"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="user-group" 
+                        text="User Group" 
+                        icon="fas fa-users" 
+                        description="Regular users"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+            
+            <sc-sidebar-item 
+                key="settings" 
+                text="Settings" 
+                icon="fas fa-cog" 
+                description="System configuration"
+                behavior="clickable">
+            </sc-sidebar-item>
+            
+            <sc-sidebar-item 
+                key="reports" 
+                text="Reports" 
+                icon="fas fa-chart-bar" 
+                description="Analytics and reports"
+                behavior="expandable">
+                
+                <sc-sidebar-item 
+                    key="daily-reports" 
+                    text="Daily Reports" 
+                    icon="fas fa-calendar-day" 
+                    description="Daily statistics"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="monthly-reports" 
+                    text="Monthly Reports" 
+                    icon="fas fa-calendar-alt" 
+                    description="Monthly statistics"
+                    behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+            
+            <sc-sidebar-item 
+                key="analytics" 
+                text="Analytics" 
+                icon="fas fa-chart-line" 
+                description="Advanced analytics"
+                behavior="expandable">
+                
+                <sc-sidebar-item 
+                    key="user-analytics" 
+                    text="User Analytics" 
+                    icon="fas fa-user-chart" 
+                    description="User behavior analysis"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="performance" 
+                    text="Performance" 
+                    icon="fas fa-tachometer-alt" 
+                    description="System performance"
+                    behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+        </sc-sidebar>
+        
+        <div class="main-content" id="mainContent">
+            <div class="content-section">
+                <h2>🎭 Smooth Animations Features</h2>
+                <p>این دمو انیمیشن‌های نرم و ریسپانسیو سایدبار را نشان می‌دهد:</p>
+                
+                <div class="animation-demo">
+                    <h3>✨ انیمیشن‌های نرم <span class="animation-indicator"></span></h3>
+                    <p>تمام تغییرات با انیمیشن‌های نرم و طبیعی انجام می‌شوند</p>
+                </div>
+                
+                <div class="responsive-info">
+                    <h3>🚀 قابلیت‌های کلیدی:</h3>
+                    <ul>
+                        <li><span class="status-indicator active"></span>انیمیشن‌های نرم با cubic-bezier easing</li>
+                        <li><span class="status-indicator active"></span>تغییر عرض صفحه با انیمیشن نرم</li>
+                        <li><span class="status-indicator active"></span>Tooltip های زیبا برای حالت collapsed</li>
+                        <li><span class="status-indicator active"></span>Hover effects پیشرفته</li>
+                        <li><span class="status-indicator active"></span>Responsive behavior کامل</li>
+                        <li><span class="status-indicator active"></span>Performance optimization</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2>🔧 نحوه استفاده:</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Toggle Sidebar</h3>
+                        <p>برای باز/بسته کردن سایدبار کلیک کنید. عرض صفحه به صورت نرم تغییر می‌کند.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Theme Switching</h3>
+                        <p>بین تم‌های light و dark جابجا شوید تا ظاهر متفاوتی داشته باشید.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Position Control</h3>
+                        <p>موقعیت سایدبار را بین left و right تغییر دهید.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Responsive Design</h3>
+                        <p>در mobile devices، سایدبار به صورت overlay نمایش داده می‌شود.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2>📱 Responsive Behavior</h2>
+                <p>سایدبار در حالت‌های مختلف به صورت زیر عمل می‌کند:</p>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Desktop - Expanded</h3>
+                        <p>عرض: 250px، نمایش کامل متن و آیکن‌ها با انیمیشن نرم</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Desktop - Collapsed</h3>
+                        <p>عرض: 60px، فقط آیکن‌ها با tooltip و انیمیشن نرم</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Mobile - Default</h3>
+                        <p>سایدبار مخفی، محتوای اصلی full-width</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Mobile - Open</h3>
+                        <p>سایدبار به صورت overlay با انیمیشن slide</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2>⚡ Performance & Animation</h2>
+                <p>بهینه‌سازی‌های اعمال شده برای انیمیشن‌های نرم:</p>
+                
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value">0.4s</div>
+                        <div class="metric-label">Transition Duration</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-value">60fps</div>
+                        <div class="metric-label">Target FPS</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-value">cubic-bezier</div>
+                        <div class="metric-label">Easing Function</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-value">GPU</div>
+                        <div class="metric-label">Hardware Acceleration</div>
+                    </div>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>CSS Transitions</h3>
+                        <p>استفاده از CSS transitions برای انیمیشن‌های نرم و بهینه</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Hardware Acceleration</h3>
+                        <p>استفاده از will-change و transform برای GPU acceleration</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Smooth Easing</h3>
+                        <p>استفاده از cubic-bezier برای انیمیشن‌های طبیعی</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Performance Monitoring</h3>
+                        <p>نظارت بر performance و بهینه‌سازی مداوم</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the sidebar component first -->
+    <script src="/SpecialComponent/Components/Sidebar/sidebar.js"></script>
+    
+    <!-- Add error handling for component loading -->
+    <script>
+        // Check if components loaded successfully
+        window.addEventListener('error', function(event) {
+            console.error('🚨 Script error:', event.error);
+            if (event.filename && event.filename.includes('sidebar.js')) {
+                document.body.innerHTML = '<div style="padding: 50px; text-align: center; color: red;"><h1>❌ Error Loading Sidebar Component</h1><p>There was an error loading the sidebar component. Please check the console for details.</p></div>';
+            }
+        });
+    </script>
+    
+    <script>
+        // Demo functions
+        function toggleSidebar() {
+            const sidebar = document.querySelector('#mainSidebar');
+            if (sidebar && sidebar.shadowRoot) {
+                const toggleBtn = sidebar.shadowRoot.querySelector('#toggleBtn');
+                if (toggleBtn) {
+                    toggleBtn.click();
+                }
+            }
+        }
+        
+        function toggleTheme() {
+            const sidebar = document.querySelector('#mainSidebar');
+            if (sidebar) {
+                const currentTheme = sidebar.getAttribute('theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                sidebar.setAttribute('theme', newTheme);
+            }
+        }
+        
+        function expandAll() {
+            const items = document.querySelectorAll('sc-sidebar-item[data-expandable="true"]');
+            items.forEach(item => {
+                if (item && typeof item.expand === 'function' && !item.expanded) {
+                    item.expand();
+                }
+            });
+        }
+        
+        function collapseAll() {
+            const items = document.querySelectorAll('sc-sidebar-item[data-expandable="true"]');
+            items.forEach(item => {
+                if (item && typeof item.collapse === 'function' && item.expanded) {
+                    item.collapse();
+                }
+            });
+        }
+        
+        function togglePosition() {
+            const sidebar = document.querySelector('#mainSidebar');
+            if (sidebar) {
+                const currentPosition = sidebar.getAttribute('position');
+                const newPosition = currentPosition === 'left' ? 'right' : 'left';
+                sidebar.setAttribute('position', newPosition);
+                
+                // Update main content margins
+                const mainContent = document.getElementById('mainContent');
+                if (mainContent) {
+                    if (newPosition === 'left') {
+                        mainContent.style.marginLeft = '270px';
+                        mainContent.style.marginRight = '20px';
+                    } else {
+                        mainContent.style.marginLeft = '20px';
+                        mainContent.style.marginRight = '270px';
+                    }
+                }
+            }
+        }
+        
+        function showPerformance() {
+            // Show performance metrics
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+                z-index: 10000;
+                animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                max-width: 300px;
+            `;
+            notification.innerHTML = `
+                <h4 style="margin-bottom: 10px;">⚡ Performance Metrics</h4>
+                <p>• Transition Duration: 0.4s</p>
+                <p>• Easing: cubic-bezier(0.4, 0, 0.2, 1)</p>
+                <p>• Hardware Acceleration: Enabled</p>
+                <p>• Target FPS: 60fps</p>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Add event listeners for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit for custom elements to be defined
+            setTimeout(() => {
+                const items = document.querySelectorAll('sc-sidebar-item');
+                
+                items.forEach(item => {
+                    if (item && item.addEventListener) {
+                        item.addEventListener('sidebar-item-click', function(e) {
+                            console.log('Item clicked:', e.detail);
+                            
+                            // Show notification
+                            const notification = document.createElement('div');
+                            notification.style.cssText = `
+                                position: fixed;
+                                top: 20px;
+                                right: 20px;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                padding: 15px 20px;
+                                border-radius: 15px;
+                                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+                                z-index: 10000;
+                                animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                            `;
+                            notification.textContent = `Clicked: ${e.detail.text}`;
+                            document.body.appendChild(notification);
+                            
+                            setTimeout(() => {
+                                if (notification.parentNode) {
+                                    notification.remove();
+                                }
+                            }, 3000);
+                        });
+                    }
+                });
+                
+                console.log('✅ Smooth Animations Sidebar Demo loaded successfully!');
+                console.log('🧪 Test the following features:');
+                console.log('   - Smooth sidebar collapse/expand');
+                console.log('   - Page width adjustment');
+                console.log('   - Theme switching');
+                console.log('   - Position switching');
+                console.log('   - Responsive behavior');
+                console.log('   - Performance metrics');
+            }, 100);
+        });
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

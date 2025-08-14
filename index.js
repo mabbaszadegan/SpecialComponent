@@ -30,7 +30,8 @@ function setupSidebar() {
       url: `${root}/SpecialTextbox/SpecialTextbox.html`,
       icon: "fa-solid fa-keyboard",
       description: "تکست باکس با انیمیشن و قابلیت RTL",
-      category: "form"
+      category: "form",
+      behavior: "clickable"
     },
     {
       key: "resizableElement",
@@ -38,55 +39,103 @@ function setupSidebar() {
       url: `${root}/ResizableElement/ResizableElement.html`,
       icon: "fa-solid fa-expand-arrows-alt",
       description: "المان قابل drag & resize",
-      category: "interaction"
+      category: "interaction",
+      behavior: "clickable"
     }
   ];
 
-  const setting = {
-    sidebarContainer: sidebarNav,
-    contentContainer: container,
-    itemClassList: ["sidebar-item"],
-    itemClick: openPage,
-    showDescriptions: true
-  };
-  
-  const sidebar = new Sidebar(items, setting);
-  sidebar.build();
+  // Create the sidebar component
+  const sidebar = document.createElement('sc-sidebar');
+  sidebar.setAttribute('theme', 'light');
+  sidebar.setAttribute('position', 'left');
+  sidebar.setAttribute('width', '280px');
+  sidebar.setAttribute('collapsible', 'true');
+  sidebar.setAttribute('show-header', 'true');
+  sidebar.setAttribute('show-footer', 'true');
+  sidebar.setAttribute('searchable', 'true');
+  sidebar.setAttribute('animations', 'true');
+  sidebar.setAttribute('responsive', 'true');
+  sidebar.setAttribute('remember-state', 'true');
+  sidebar.setAttribute('title', 'کامپوننت‌ها');
+
+  // Add items to sidebar
+  items.forEach(itemData => {
+    const item = document.createElement('sc-sidebar-item');
+    Object.keys(itemData).forEach(key => {
+      if (key !== 'children') {
+        item.setAttribute(key, itemData[key]);
+      }
+    });
+    
+    // Add click handler for navigation
+    item.addEventListener('sidebar-item-click', (e) => {
+      if (e.detail.behavior === 'clickable') {
+        openPage(itemData.url);
+      }
+    });
+    
+    sidebar.appendChild(item);
+  });
+
+  // Replace the existing sidebar content
+  sidebarContainer.innerHTML = '';
+  sidebarContainer.appendChild(sidebar);
 }
 
 function setupMobileSidebar() {
   if (!sidebarToggle || !sidebarOverlay) return;
   
-  sidebarToggle.addEventListener("click", toggleSidebar);
-  sidebarOverlay.addEventListener("click", closeSidebar);
+  sidebarToggle.addEventListener('click', toggleSidebar);
+  sidebarOverlay.addEventListener('click', closeSidebar);
   
   // Close sidebar on escape key
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
       closeSidebar();
     }
   });
 }
 
 function toggleSidebar() {
-  sidebarContainer.classList.toggle("open");
-  sidebarOverlay.classList.toggle("open");
+  const sidebar = sidebarContainer.querySelector('sc-sidebar');
+  if (sidebar) {
+    // Use the component's mobile functionality
+    if (sidebar.state && sidebar.state.mobileOpen) {
+      sidebar.closeMobile();
+    } else {
+      sidebar.openMobile();
+    }
+  } else {
+    // Fallback to old behavior
+    sidebarContainer.classList.toggle("open");
+    sidebarOverlay.classList.toggle("open");
+  }
   
   // Update toggle button icon
+  updateToggleButtonIcon();
+}
+
+function closeSidebar() {
+  const sidebar = sidebarContainer.querySelector('sc-sidebar');
+  if (sidebar && sidebar.closeMobile) {
+    sidebar.closeMobile();
+  } else {
+    sidebarContainer.classList.remove("open");
+    sidebarOverlay.classList.remove("open");
+  }
+  
+  updateToggleButtonIcon();
+}
+
+function updateToggleButtonIcon() {
   const icon = sidebarToggle.querySelector("i");
-  if (sidebarContainer.classList.contains("open")) {
+  const sidebar = sidebarContainer.querySelector('sc-sidebar');
+  
+  if (sidebar && sidebar.state && sidebar.state.mobileOpen) {
     icon.className = "fa-solid fa-times";
   } else {
     icon.className = "fa-solid fa-bars";
   }
-}
-
-function closeSidebar() {
-  sidebarContainer.classList.remove("open");
-  sidebarOverlay.classList.remove("open");
-  
-  const icon = sidebarToggle.querySelector("i");
-  icon.className = "fa-solid fa-bars";
 }
 
 function openPage(path) {

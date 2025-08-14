@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Paths Sidebar Test</title>
+    
+    <!-- Load FontAwesome with absolute path -->
+    <link rel="stylesheet" href="/SpecialComponent/assets/libs/font-awesome/fontawsome.min.css">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover { background: #0056b3; }
+        
+        .sidebar-test {
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Fixed Paths Sidebar Test</h1>
+    
+    <div class="test-container">
+        <h2>Test Status</h2>
+        <div id="status">Initializing...</div>
+        <button onclick="checkStatus()">Check Status</button>
+        <button onclick="testSidebar()">Test Sidebar</button>
+    </div>
+    
+    <div class="sidebar-test">
+        <h3>Sidebar Component Test</h3>
+        <div id="sidebar-container">
+            <sc-sidebar 
+                id="testSidebar"
+                theme="light" 
+                position="left" 
+                width="250px" 
+                collapsible 
+                show-header 
+                title="Test Sidebar">
+                
+                <sc-sidebar-item 
+                    key="test1" 
+                    text="Test Item 1" 
+                    icon="fas fa-home" 
+                    description="Test description"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="test2" 
+                    text="Test Item 2" 
+                    icon="fas fa-user" 
+                    description="Another test"
+                    behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar>
+        </div>
+    </div>
+
+    <!-- Load sidebar component with absolute path -->
+    <script src="/SpecialComponent/Components/Sidebar/sidebar.js"></script>
+    
+    <script>
+        console.log('🚀 Fixed paths test started');
+        
+        let statusDiv;
+        
+        function updateStatus(message, type = 'info') {
+            if (!statusDiv) statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            console.log(message);
+        }
+        
+        function checkStatus() {
+            updateStatus('Checking component status...', 'info');
+            
+            try {
+                // Check if components are registered
+                const sidebarDefined = customElements.get('sc-sidebar');
+                const itemDefined = customElements.get('sc-sidebar-item');
+                
+                if (sidebarDefined && itemDefined) {
+                    updateStatus('✅ Both components registered successfully!', 'success');
+                } else {
+                    updateStatus('❌ Components not registered properly', 'error');
+                }
+                
+                // Check if sidebar element exists
+                const sidebar = document.querySelector('#testSidebar');
+                if (sidebar) {
+                    updateStatus('✅ Sidebar element found in DOM', 'success');
+                    
+                    if (sidebar.shadowRoot) {
+                        updateStatus('✅ Sidebar shadowRoot created successfully!', 'success');
+                        
+                        // Check if CSS is loaded
+                        const cssLink = sidebar.shadowRoot.querySelector('link[rel="stylesheet"]');
+                        if (cssLink) {
+                            updateStatus(`✅ CSS link found: ${cssLink.href}`, 'success');
+                        } else {
+                            updateStatus('❌ CSS link not found in shadowRoot', 'error');
+                        }
+                    } else {
+                        updateStatus('❌ Sidebar shadowRoot not created', 'error');
+                    }
+                } else {
+                    updateStatus('❌ Sidebar element not found in DOM', 'error');
+                }
+                
+            } catch (error) {
+                updateStatus(`❌ Error checking status: ${error.message}`, 'error');
+                console.error('Status check error:', error);
+            }
+        }
+        
+        function testSidebar() {
+            updateStatus('Testing sidebar functionality...', 'info');
+            
+            try {
+                const sidebar = document.querySelector('#testSidebar');
+                if (sidebar && sidebar.shadowRoot) {
+                    const toggleBtn = sidebar.shadowRoot.querySelector('#toggleBtn');
+                    if (toggleBtn) {
+                        toggleBtn.click();
+                        updateStatus('✅ Toggle button clicked successfully!', 'success');
+                    } else {
+                        updateStatus('❌ Toggle button not found', 'error');
+                    }
+                } else {
+                    updateStatus('❌ Sidebar not ready for testing', 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Error testing sidebar: ${error.message}`, 'error');
+                console.error('Sidebar test error:', error);
+            }
+        }
+        
+        // Auto-check on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('DOM loaded, waiting for components...', 'info');
+            
+            setTimeout(() => {
+                checkStatus();
+            }, 500);
+        });
+        
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('🚨 Global error:', event.error);
+            updateStatus(`🚨 Global error: ${event.error.message}`, 'error');
+        });
+        
+        // Unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('🚨 Unhandled promise rejection:', event.reason);
+            updateStatus(`🚨 Unhandled promise rejection: ${event.reason}`, 'error');
+        });
+    </script>
+</body>
+</html>
+

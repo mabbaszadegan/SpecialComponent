@@ -1,8 +1,5 @@
 /* Sidebar Web Components Styles */
 
-/* Import FontAwesome for icons */
-@import url('/../../assets/libs/font-awesome/fontawsome.min.css');
-
 /* CSS Variables for theming */
 :root {
   /* Light theme */
@@ -22,12 +19,16 @@
   --sc-dark-shadow: rgba(0, 0, 0, 0.3);
   
   /* Common */
-  --sc-transition: all 0.3s ease;
+  --sc-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   --sc-border-radius: 8px;
   --sc-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
+  /* Layout dimensions */
+  --sc-sidebar-width: 280px;
+  --sc-sidebar-collapsed-width: 60px;
 }
 
-/* Sidebar Container */
+/* Sidebar Container - improved flexbox layout */
 .sc-sidebar {
   display: flex;
   flex-direction: column;
@@ -36,9 +37,29 @@
   color: var(--sc-light-text);
   border: 1px solid var(--sc-light-border);
   box-shadow: 0 2px 10px var(--sc-light-shadow);
-  transition: var(--sc-transition);
   font-family: var(--sc-font-family);
   overflow: hidden;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  
+  /* Use flex-basis for smooth width transitions */
+  flex: 0 0 var(--sc-sidebar-width);
+  width: var(--sc-sidebar-width);
+  min-width: var(--sc-sidebar-width);
+  max-width: var(--sc-sidebar-width);
+  
+  /* Smooth transitions for all properties */
+  transition: 
+    flex-basis var(--sc-transition),
+    width var(--sc-transition),
+    min-width var(--sc-transition),
+    max-width var(--sc-transition),
+    transform var(--sc-transition),
+    box-shadow var(--sc-transition);
+  
+  /* Prevent layout shifts */
+  will-change: flex-basis, width;
 }
 
 .sc-sidebar[theme="dark"] {
@@ -54,6 +75,8 @@
 }
 
 .sc-sidebar[position="right"] {
+  left: auto;
+  right: 0;
   border-left: 1px solid var(--sc-light-border);
 }
 
@@ -70,6 +93,12 @@
   align-items: center;
   justify-content: space-between;
   min-height: 60px;
+  
+  /* Smooth transitions for content */
+  transition: 
+    opacity var(--sc-transition),
+    transform var(--sc-transition),
+    visibility var(--sc-transition);
 }
 
 .sc-sidebar[theme="dark"] .sc-sidebar-header {
@@ -81,6 +110,13 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+  transition: 
+    opacity var(--sc-transition),
+    transform var(--sc-transition),
+    visibility var(--sc-transition);
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 .sc-sidebar-header .sc-toggle-btn {
@@ -96,6 +132,7 @@
 
 .sc-sidebar-header .sc-toggle-btn:hover {
   background: var(--sc-light-hover);
+  transform: scale(1.1);
 }
 
 .sc-sidebar[theme="dark"] .sc-sidebar-header .sc-toggle-btn:hover {
@@ -106,6 +143,13 @@
 .sc-sidebar-search {
   padding: 15px 20px;
   border-bottom: 1px solid var(--sc-light-border);
+  transition: 
+    opacity var(--sc-transition),
+    transform var(--sc-transition),
+    visibility var(--sc-transition);
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 .sc-sidebar[theme="dark"] .sc-sidebar-search {
@@ -140,6 +184,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 10px 0;
+  transition: var(--sc-transition);
 }
 
 .sc-sidebar-content::-webkit-scrollbar {
@@ -167,12 +212,35 @@
   text-align: center;
   font-size: 12px;
   color: #666;
+  transition: 
+    opacity var(--sc-transition),
+    transform var(--sc-transition),
+    visibility var(--sc-transition);
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 .sc-sidebar[theme="dark"] .sc-sidebar-footer {
   border-top-color: var(--sc-dark-border);
   background: var(--sc-dark-bg);
   color: #bdc3c7;
+}
+
+/* FontAwesome icon support */
+.sc-item-icon.fas,
+.sc-item-icon.fa-solid,
+.sc-item-icon.fa-regular,
+.sc-item-icon.fa-brands {
+  font-weight: 900;
+}
+
+.sc-item-icon.fa-regular {
+  font-weight: 400;
+}
+
+.sc-item-icon.fa-brands {
+  font-weight: 400;
 }
 
 /* Sidebar Items */
@@ -194,6 +262,7 @@
 
 .sc-sidebar-item:hover {
   background: var(--sc-light-hover);
+  transform: translateX(5px);
 }
 
 .sc-sidebar[theme="dark"] .sc-sidebar-item:hover {
@@ -210,20 +279,25 @@
   color: #64b5f6;
 }
 
-/* آیتم‌های قابل باز شدن */
+/* Expandable items */
 .sc-sidebar-item[data-expandable="true"] {
   cursor: pointer;
 }
 
-/* آیتم‌های قابل کلیک */
+/* Clickable items */
 .sc-sidebar-item[data-clickable="true"] {
   cursor: pointer;
 }
 
-/* آیتم‌های غیرفعال */
+/* Inactive items */
 .sc-sidebar-item[data-clickable="false"][data-expandable="false"] {
   cursor: default;
   opacity: 0.6;
+}
+
+/* Hidden items (for search) */
+.sc-sidebar-item.sc-hidden {
+  display: none !important;
 }
 
 .sc-sidebar-item .sc-item-icon {
@@ -232,23 +306,33 @@
   text-align: center;
   font-size: 16px;
   flex-shrink: 0;
+  transition: var(--sc-transition);
 }
 
 .sc-sidebar-item .sc-item-content {
   flex: 1;
   display: flex;
   flex-direction: column;
+  transition: 
+    opacity var(--sc-transition),
+    transform var(--sc-transition),
+    visibility var(--sc-transition);
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 .sc-sidebar-item .sc-item-text {
   font-weight: 500;
   margin-bottom: 2px;
+  transition: var(--sc-transition);
 }
 
 .sc-sidebar-item .sc-item-description {
   font-size: 12px;
   color: #666;
   opacity: 0.8;
+  transition: var(--sc-transition);
 }
 
 .sc-sidebar[theme="dark"] .sc-sidebar-item .sc-item-description {
@@ -265,49 +349,72 @@
   transform: rotate(90deg);
 }
 
-/* Nested items */
+/* Nested items - Pure CSS transitions without JavaScript manipulation */
 .sc-nested-items {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease, padding 0.3s ease;
+  transition: 
+    max-height var(--sc-transition),
+    opacity var(--sc-transition),
+    transform var(--sc-transition),
+    padding var(--sc-transition);
   background: rgba(0, 0, 0, 0.02);
   opacity: 0;
   transform: translateY(-10px);
   padding: 0;
+  margin: 0;
+  border: none;
 }
 
 .sc-sidebar[theme="dark"] .sc-nested-items {
   background: rgba(255, 255, 255, 0.02);
 }
 
-.sc-sidebar-item.expanded .sc-nested-items {
-  max-height: 1000px;
+.sc-nested-items.expanded {
+  max-height: 500px;
   opacity: 1;
   transform: translateY(0);
   padding: 5px 0;
 }
 
+/* Ensure nested items are visible when expanded */
+.sc-nested-items:not(.sc-hidden) {
+  display: block !important;
+}
+
 .sc-nested-items .sc-sidebar-item {
   padding-left: 40px;
   font-size: 13px;
+  margin: 0;
+  border: none;
 }
 
 .sc-nested-items .sc-sidebar-item .sc-item-icon {
   font-size: 14px;
 }
 
-/* Collapsed state */
+/* Collapsed state - Pure CSS transitions without JavaScript manipulation */
 .sc-sidebar.collapsed {
-  width: 60px !important;
+  flex-basis: var(--sc-sidebar-collapsed-width);
+  width: var(--sc-sidebar-collapsed-width) !important;
+  min-width: var(--sc-sidebar-collapsed-width);
+  max-width: var(--sc-sidebar-collapsed-width);
 }
 
 .sc-sidebar.collapsed .sc-sidebar-header h3,
 .sc-sidebar.collapsed .sc-sidebar-search,
-.sc-sidebar.collapsed .sc-sidebar-footer,
+.sc-sidebar.collapsed .sc-sidebar-footer {
+  opacity: 0;
+  transform: translateX(-20px);
+  visibility: hidden;
+}
+
 .sc-sidebar.collapsed .sc-item-text,
 .sc-sidebar.collapsed .sc-item-description,
 .sc-sidebar.collapsed .sc-item-arrow {
-  display: none;
+  opacity: 0;
+  transform: translateX(-20px);
+  visibility: hidden;
 }
 
 .sc-sidebar.collapsed .sc-sidebar-item {
@@ -318,10 +425,104 @@
 .sc-sidebar.collapsed .sc-sidebar-item .sc-item-icon {
   margin: 0;
   font-size: 18px;
+  transition: var(--sc-transition);
 }
 
 .sc-sidebar.collapsed .sc-nested-items {
   display: none !important;
+}
+
+/* Tooltip for collapsed items */
+.sc-sidebar.collapsed .sc-sidebar-item {
+  position: relative;
+}
+
+.sc-sidebar.collapsed .sc-sidebar-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--sc-light-bg);
+  color: var(--sc-light-text);
+  padding: 8px 12px;
+  border-radius: var(--sc-border-radius);
+  box-shadow: 0 2px 10px var(--sc-light-shadow);
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--sc-transition);
+  z-index: 1001;
+  margin-left: 10px;
+  pointer-events: none;
+}
+
+.sc-sidebar.collapsed .sc-sidebar-item:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sc-sidebar[theme="dark"].collapsed .sc-sidebar-item::after {
+  background: var(--sc-dark-bg);
+  color: var(--sc-dark-text);
+  box-shadow: 0 2px 10px var(--sc-dark-shadow);
+}
+
+/* Main content area - automatically adjusts to sidebar width */
+.sc-main-content {
+  flex: 1;
+  margin-left: var(--sc-sidebar-width);
+  transition: margin-left var(--sc-transition), margin-right var(--sc-transition);
+  padding: 20px;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+/* When sidebar is collapsed, main content expands */
+.sc-sidebar.collapsed + .sc-main-content {
+  margin-left: var(--sc-sidebar-collapsed-width);
+}
+
+/* Position right adjustments */
+.sc-sidebar[position="right"] + .sc-main-content {
+  margin-left: 0;
+  margin-right: var(--sc-sidebar-width);
+}
+
+.sc-sidebar[position="right"].collapsed + .sc-main-content {
+  margin-right: var(--sc-sidebar-collapsed-width);
+}
+
+/* Integration with main app layout */
+.app-container .sc-sidebar {
+  grid-area: sidebar;
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: auto;
+}
+
+.app-container .sc-sidebar.collapsed {
+  width: var(--sc-sidebar-collapsed-width);
+  min-width: var(--sc-sidebar-collapsed-width);
+  max-width: var(--sc-sidebar-collapsed-width);
+}
+
+/* Ensure smooth transitions for grid layout changes */
+.app-container {
+  transition: grid-template-columns var(--sc-transition);
+}
+
+/* Content placeholder styling */
+.sc-content-placeholder {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #64748b;
+  font-size: 1.1rem;
 }
 
 /* Responsive */
@@ -332,7 +533,7 @@
     left: 0;
     z-index: 1000;
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform var(--sc-transition);
   }
   
   .sc-sidebar[position="right"] {
@@ -362,11 +563,18 @@
     opacity: 1;
     visibility: visible;
   }
+  
+  /* Mobile: main content takes full width */
+  .sc-main-content {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 10px;
+  }
 }
 
-/* Animations */
+/* Improved animations with better performance */
 .sc-sidebar[animations="true"] .sc-sidebar-item {
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideIn {
@@ -381,17 +589,19 @@
 }
 
 .sc-sidebar[animations="true"] .sc-nested-items {
-  animation: expandIn 0.3s ease;
+  animation: expandIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes expandIn {
   from {
     opacity: 0;
     max-height: 0;
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
-    max-height: 1000px;
+    max-height: 500px;
+    transform: translateY(0);
   }
 }
 
@@ -402,4 +612,121 @@
 
 .sc-visible {
   display: block !important;
+}
+
+/* Fix for nested items display */
+.sc-sidebar-item[data-expandable="true"] .sc-nested-items {
+  display: block;
+}
+
+/* Smooth transitions for all interactive elements */
+.sc-sidebar * {
+  transition: var(--sc-transition);
+}
+
+/* Prevent layout shifts during transitions */
+.sc-sidebar {
+  will-change: flex-basis, width;
+}
+
+.sc-nested-items {
+  will-change: max-height, opacity, transform;
+}
+
+/* Enhanced hover effects */
+.sc-sidebar-item:hover .sc-item-icon {
+  transform: scale(1.1);
+}
+
+.sc-sidebar-item:hover .sc-item-text {
+  transform: translateX(3px);
+}
+
+/* Loading states for smooth transitions */
+.sc-sidebar.transitioning {
+  pointer-events: none;
+}
+
+.sc-sidebar.transitioning * {
+  pointer-events: none;
+}
+
+/* Focus states for accessibility */
+.sc-sidebar-item:focus {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+.sc-sidebar-item:focus .sc-item-icon {
+  transform: scale(1.1);
+}
+
+/* Print styles */
+@media print {
+  .sc-sidebar {
+    display: none;
+  }
+  
+  .sc-main-content {
+    margin: 0 !important;
+    padding: 0;
+  }
+}
+
+/* Mobile overlay */
+.sc-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--sc-transition);
+  pointer-events: none;
+}
+
+.sc-sidebar-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Mobile responsive behavior */
+@media (max-width: 768px) {
+  .sc-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform var(--sc-transition);
+    height: 100vh;
+  }
+  
+  .sc-sidebar[position="right"] {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
+  }
+  
+  .sc-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  
+  /* Mobile: main content takes full width */
+  .sc-main-content {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 10px;
+  }
+  
+  /* Ensure mobile overlay is visible when sidebar is open */
+  .sc-sidebar.mobile-open + .sc-sidebar-overlay {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
 }

@@ -6,7 +6,7 @@
     <title>Simple Sidebar Demo - Expand/Collapse</title>
     
     <!-- FontAwesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/libs/font-awesome/fontawsome.min.css">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="simple-sidebar-demo.css">
@@ -14,57 +14,65 @@
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <div class="sidebar">
-            <sc-sidebar 
-                id="simple-sidebar"
-                theme="light"
-                position="right"
-                width="300px"
-                collapsed-width="60px"
-                collapsible
-                show-header
-                show-footer
-                searchable
-                animations
-                responsive
-                remember-state>
-                
-                <sc-sidebar-item key="dashboard" text="داشبورد" icon="fas fa-tachometer-alt" description="نمای کلی سیستم" behavior="clickable"></sc-sidebar-item>
-                
+            <sc-sidebar id="simple-sidebar" theme="light" position="right" width="300px" collapsed-width="60px" collapsible
+                show-header show-footer searchable animations responsive remember-state>
+            
+                <sc-sidebar-item key="dashboard" text="داشبورد" icon="fas fa-tachometer-alt" description="نمای کلی سیستم"
+                    behavior="clickable"></sc-sidebar-item>
+            
                 <sc-sidebar-item key="content" text="محتوا" icon="fas fa-file-alt" description="مدیریت محتوا" behavior="expandable">
-                    <sc-sidebar-item key="articles" text="مقالات" icon="fas fa-newspaper" description="مدیریت مقالات" behavior="expandable">
-                         <sc-sidebar-item key="sports" text="ورزشی" icon="fas fa-futbol" description="مقالات ورزشی" behavior="clickable"></sc-sidebar-item>
-                         <sc-sidebar-item key="physics" text="فیزیک" icon="fas fa-atom" description="مقالات فیزیک" behavior="clickable"></sc-sidebar-item>
-                         <sc-sidebar-item key="technology" text="تکنولوژی" icon="fas fa-microchip" description="مقالات تکنولوژی" behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="articles" text="مقالات" icon="fas fa-newspaper" description="مدیریت مقالات"
+                        behavior="expandable">
+                        <sc-sidebar-item key="sports" text="ورزشی" icon="fas fa-futbol" description="مقالات ورزشی"
+                            behavior="clickable"></sc-sidebar-item>
+                        <sc-sidebar-item key="physics" text="فیزیک" icon="fas fa-atom" description="مقالات فیزیک"
+                            behavior="clickable"></sc-sidebar-item>
+                        <sc-sidebar-item key="technology" text="تکنولوژی" icon="fas fa-microchip" description="مقالات تکنولوژی"
+                            behavior="clickable"></sc-sidebar-item>
                     </sc-sidebar-item>
-                    <sc-sidebar-item key="pages" text="صفحات" icon="fas fa-file" description="مدیریت صفحات" behavior="clickable"></sc-sidebar-item>
-                    <sc-sidebar-item key="media" text="رسانه‌ها" icon="fas fa-images" description="مدیریت فایل‌ها" behavior="clickable"></sc-sidebar-item>
-                    <sc-sidebar-item key="documents" text="مستندات" icon="fas fa-file-pdf" description="مدیریت مستندات" behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="pages" text="صفحات" icon="fas fa-file" description="مدیریت صفحات"
+                        behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="media" text="رسانه‌ها" icon="fas fa-images" description="مدیریت فایل‌ها"
+                        behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="documents" text="مستندات" icon="fas fa-file-pdf" description="مدیریت مستندات"
+                        behavior="clickable"></sc-sidebar-item>
                 </sc-sidebar-item>
-                
+            
                 <sc-sidebar-item key="users" text="کاربران" icon="fas fa-users" description="مدیریت کاربران" behavior="expandable">
-                    <sc-sidebar-item key="all-users" text="همه کاربران" icon="fas fa-user-check" description="مشاهده لیست کاربران" behavior="clickable"></sc-sidebar-item>
-                    <sc-sidebar-item key="add-user" text="افزودن کاربر" icon="fas fa-user-plus" description="ایجاد کاربر جدید" behavior="clickable"></sc-sidebar-item>
-                    <sc-sidebar-item key="roles" text="نقش‌ها" icon="fas fa-shield-alt" description="مدیریت نقش‌ها" behavior="expandable">
-                        <sc-sidebar-item key="admin" text="مدیر" icon="fas fa-crown" description="نقش مدیر سیستم" behavior="clickable"></sc-sidebar-item>
-                        <sc-sidebar-item key="moderator" text="ناظر" icon="fas fa-user-shield" description="نقش ناظر محتوا" behavior="clickable"></sc-sidebar-item>
-                        <sc-sidebar-item key="user" text="کاربر عادی" icon="fas fa-user" description="نقش کاربر عادی" behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="all-users" text="همه کاربران" icon="fas fa-user-check" description="مشاهده لیست کاربران"
+                        behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="add-user" text="افزودن کاربر" icon="fas fa-user-plus" description="ایجاد کاربر جدید"
+                        behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="roles" text="نقش‌ها" icon="fas fa-shield-alt" description="مدیریت نقش‌ها"
+                        behavior="expandable">
+                        <sc-sidebar-item key="admin" text="مدیر" icon="fas fa-crown" description="نقش مدیر سیستم"
+                            behavior="clickable"></sc-sidebar-item>
+                        <sc-sidebar-item key="moderator" text="ناظر" icon="fas fa-user-shield" description="نقش ناظر محتوا"
+                            behavior="clickable"></sc-sidebar-item>
+                        <sc-sidebar-item key="user" text="کاربر عادی" icon="fas fa-user" description="نقش کاربر عادی"
+                            behavior="clickable"></sc-sidebar-item>
                     </sc-sidebar-item>
-                    <sc-sidebar-item key="permissions" text="دسترسی‌ها" icon="fas fa-key" description="مدیریت دسترسی‌ها" behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="permissions" text="دسترسی‌ها" icon="fas fa-key" description="مدیریت دسترسی‌ها"
+                        behavior="clickable"></sc-sidebar-item>
                 </sc-sidebar-item>
-                
-                <sc-sidebar-item key="analytics" text="تحلیل‌ها" icon="fas fa-chart-bar" description="گزارشات و تحلیل‌ها" behavior="expandable">
-                    <sc-sidebar-item key="user-analytics" text="تحلیل کاربران" icon="fas fa-chart-line" description="گزارشات کاربران" behavior="clickable"></sc-sidebar-item>
-                    <sc-sidebar-item key="content-analytics" text="تحلیل محتوا" icon="fas fa-chart-pie" description="گزارشات محتوا" behavior="clickable"></sc-sidebar-item>
-                    <sc-sidebar-item key="system-analytics" text="تحلیل سیستم" icon="fas fa-server" description="گزارشات سیستم" behavior="clickable"></sc-sidebar-item>
+            
+                <sc-sidebar-item key="analytics" text="تحلیل‌ها" icon="fas fa-chart-bar" description="گزارشات و تحلیل‌ها"
+                    behavior="expandable">
+                    <sc-sidebar-item key="user-analytics" text="تحلیل کاربران" icon="fas fa-chart-line"
+                        description="گزارشات کاربران" behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="content-analytics" text="تحلیل محتوا" icon="fas fa-chart-pie" description="گزارشات محتوا"
+                        behavior="clickable"></sc-sidebar-item>
+                    <sc-sidebar-item key="system-analytics" text="تحلیل سیستم" icon="fas fa-server" description="گزارشات سیستم"
+                        behavior="clickable"></sc-sidebar-item>
                 </sc-sidebar-item>
-                
-                <sc-sidebar-item key="settings" text="تنظیمات" icon="fas fa-cog" description="تنظیمات سیستم" behavior="clickable"></sc-sidebar-item>
-                <sc-sidebar-item key="help" text="راهنما" icon="fas fa-question-circle" description="راهنمای سیستم" behavior="clickable"></sc-sidebar-item>
-                <sc-sidebar-item key="about" text="درباره" icon="fas fa-info-circle" description="اطلاعات سیستم" behavior="clickable"></sc-sidebar-item>
+            
+                <sc-sidebar-item key="settings" text="تنظیمات" icon="fas fa-cog" description="تنظیمات سیستم"
+                    behavior="clickable"></sc-sidebar-item>
+                <sc-sidebar-item key="help" text="راهنما" icon="fas fa-question-circle" description="راهنمای سیستم"
+                    behavior="clickable"></sc-sidebar-item>
+                <sc-sidebar-item key="about" text="درباره" icon="fas fa-info-circle" description="اطلاعات سیستم"
+                    behavior="clickable"></sc-sidebar-item>
             </sc-sidebar>
-        </div>
-        
         <!-- Main Content -->
         <div class="main-content">
             <div class="content-header">
@@ -184,7 +192,7 @@
     </div>
     
     <!-- Scripts -->
-    <script src="../../sidebar.js"></script>
+    <script src="/Components/Sidebar/sidebar.js"></script>
     <script src="simple-sidebar-demo.js"></script>
 </body>
 </html>

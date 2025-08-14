@@ -4,236 +4,223 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sidebar Debug Test</title>
+    
+    <!-- Load FontAwesome -->
+    <link rel="stylesheet" href="../../assets/libs/font-awesome/fontawsome.min.css">
+    
     <style>
         body {
-            margin: 0;
-            padding: 20px;
             font-family: Arial, sans-serif;
+            margin: 20px;
             background: #f0f0f0;
         }
-        .debug-info {
+        
+        .test-section {
             background: white;
             padding: 20px;
             margin: 20px 0;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .debug-info h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        .debug-info pre {
-            background: #f5f5f5;
+        
+        .error {
+            color: red;
+            background: #ffe6e6;
             padding: 10px;
             border-radius: 4px;
-            overflow-x: auto;
+            margin: 10px 0;
         }
-        .test-button {
+        
+        .success {
+            color: green;
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .info {
+            color: blue;
+            background: #e6f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        button {
             background: #007bff;
             color: white;
             border: none;
             padding: 10px 20px;
-            margin: 5px;
             border-radius: 4px;
             cursor: pointer;
+            margin: 5px;
         }
-        .test-button:hover {
+        
+        button:hover {
             background: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h1>Sidebar Component Debug Test</h1>
+    <h1>🔍 Sidebar Component Debug Test</h1>
     
-    <div class="debug-info">
-        <h3>Component Status</h3>
-        <div id="status">Loading...</div>
+    <div class="test-section">
+        <h2>Test 1: Component Registration</h2>
+        <div id="registration-status">Checking...</div>
+        <button onclick="checkRegistration()">Check Registration</button>
     </div>
     
-    <div class="debug-info">
-        <h3>Test Controls</h3>
-        <button class="test-button" onclick="checkShadowRoot()">Check Shadow Root</button>
-        <button class="test-button" onclick="checkCSS()">Check CSS</button>
-        <button class="test-button" onclick="checkItems()">Check Items</button>
-        <button class="test-button" onclick="forceRender()">Force Render</button>
+    <div class="test-section">
+        <h2>Test 2: Basic Sidebar</h2>
+        <div id="basic-sidebar-test">Testing...</div>
+        <button onclick="testBasicSidebar()">Test Basic Sidebar</button>
     </div>
     
-    <div class="debug-info">
-        <h3>Console Output</h3>
-        <div id="console-output" style="background: #000; color: #0f0; padding: 10px; border-radius: 4px; font-family: monospace; height: 200px; overflow-y: auto;"></div>
+    <div class="test-section">
+        <h2>Test 3: Sidebar with Items</h2>
+        <div id="items-test">Testing...</div>
+        <button onclick="testSidebarWithItems()">Test Sidebar with Items</button>
     </div>
     
-    <!-- Simple Sidebar for Testing -->
-    <sc-sidebar 
-        id="debug-sidebar"
-        theme="light"
-        position="left"
-        width="300px"
-        collapsible
-        show-header
-        show-footer
-        searchable>
-        
-        <sc-sidebar-item key="test1" text="Test Item 1" icon="fas fa-home"></sc-sidebar-item>
-        <sc-sidebar-item key="test2" text="Test Item 2" icon="fas fa-user"></sc-sidebar-item>
-        <sc-sidebar-item key="test3" text="Test Item 3" icon="fas fa-cog"></sc-sidebar-item>
-    </sc-sidebar>
-    
+    <div class="test-section">
+        <h2>Test 4: Console Logs</h2>
+        <div id="console-output">Check browser console for detailed logs...</div>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+
+    <!-- Load the sidebar component -->
     <script src="sidebar.js"></script>
+    
     <script>
-        let sidebar;
-        let consoleOutput;
+        console.log('🚀 Debug test started');
         
-        // Override console.log to capture output
-        const originalLog = console.log;
-        const originalWarn = console.warn;
-        const originalError = console.error;
-        
-        function logToOutput(message, type = 'log') {
-            if (consoleOutput) {
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = document.createElement('div');
-                logEntry.style.color = type === 'error' ? '#ff6b6b' : type === 'warn' ? '#ffd93d' : '#0f0';
-                logEntry.textContent = `[${timestamp}] ${message}`;
-                consoleOutput.appendChild(logEntry);
-                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        function checkRegistration() {
+            const statusDiv = document.getElementById('registration-status');
+            
+            try {
+                // Check if components are registered
+                const sidebarDefined = customElements.get('sc-sidebar');
+                const itemDefined = customElements.get('sc-sidebar-item');
+                
+                if (sidebarDefined && itemDefined) {
+                    statusDiv.innerHTML = '<div class="success">✅ Both components registered successfully!</div>';
+                    console.log('✅ Components registered:', { sidebarDefined, itemDefined });
+                } else {
+                    statusDiv.innerHTML = '<div class="error">❌ Components not registered properly</div>';
+                    console.error('❌ Components not registered:', { sidebarDefined, itemDefined });
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ Error checking registration: ${error.message}</div>`;
+                console.error('❌ Registration check error:', error);
             }
         }
         
-        console.log = function(...args) {
-            originalLog.apply(console, args);
-            logToOutput(args.join(' '), 'log');
-        };
-        
-        console.warn = function(...args) {
-            originalWarn.apply(console, args);
-            logToOutput(args.join(' '), 'warn');
-        };
-        
-        console.error = function(...args) {
-            originalError.apply(console, args);
-            logToOutput(args.join(' '), 'error');
-        };
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            consoleOutput = document.getElementById('console-output');
-            sidebar = document.getElementById('debug-sidebar');
+        function testBasicSidebar() {
+            const testDiv = document.getElementById('basic-sidebar-test');
             
-            logToOutput('DOM loaded, checking sidebar...');
+            try {
+                // Create a basic sidebar
+                const sidebar = document.createElement('sc-sidebar');
+                sidebar.setAttribute('theme', 'light');
+                sidebar.setAttribute('position', 'left');
+                sidebar.setAttribute('width', '250px');
+                sidebar.setAttribute('title', 'Test Sidebar');
+                
+                testDiv.appendChild(sidebar);
+                
+                // Check if it rendered
+                setTimeout(() => {
+                    if (sidebar.shadowRoot) {
+                        testDiv.innerHTML = '<div class="success">✅ Basic sidebar created and rendered successfully!</div>';
+                        console.log('✅ Basic sidebar test passed');
+                    } else {
+                        testDiv.innerHTML = '<div class="error">❌ Sidebar shadowRoot not created</div>';
+                        console.error('❌ Sidebar shadowRoot not created');
+                    }
+                }, 100);
+                
+            } catch (error) {
+                testDiv.innerHTML = `<div class="error">❌ Error creating sidebar: ${error.message}</div>`;
+                console.error('❌ Basic sidebar test error:', error);
+            }
+        }
+        
+        function testSidebarWithItems() {
+            const testDiv = document.getElementById('items-test');
             
-            // Wait a bit for component to initialize
+            try {
+                // Create sidebar with items
+                const sidebar = document.createElement('sc-sidebar');
+                sidebar.setAttribute('theme', 'light');
+                sidebar.setAttribute('position', 'left');
+                sidebar.setAttribute('width', '250px');
+                sidebar.setAttribute('title', 'Test Sidebar');
+                
+                const item1 = document.createElement('sc-sidebar-item');
+                item1.setAttribute('key', 'test1');
+                item1.setAttribute('text', 'Test Item 1');
+                item1.setAttribute('icon', 'fas fa-home');
+                item1.setAttribute('behavior', 'clickable');
+                
+                const item2 = document.createElement('sc-sidebar-item');
+                item2.setAttribute('key', 'test2');
+                item2.setAttribute('text', 'Test Item 2');
+                item2.setAttribute('icon', 'fas fa-user');
+                item2.setAttribute('behavior', 'clickable');
+                
+                sidebar.appendChild(item1);
+                sidebar.appendChild(item2);
+                
+                testDiv.appendChild(sidebar);
+                
+                // Check if items rendered
+                setTimeout(() => {
+                    if (sidebar.shadowRoot && item1.shadowRoot && item2.shadowRoot) {
+                        testDiv.innerHTML = '<div class="success">✅ Sidebar with items created successfully!</div>';
+                        console.log('✅ Sidebar with items test passed');
+                    } else {
+                        testDiv.innerHTML = '<div class="error">❌ Items shadowRoot not created</div>';
+                        console.error('❌ Items shadowRoot not created');
+                    }
+                }, 100);
+                
+            } catch (error) {
+                testDiv.innerHTML = `<div class="error">❌ Error creating sidebar with items: ${error.message}</div>`;
+                console.error('❌ Sidebar with items test error:', error);
+            }
+        }
+        
+        function clearConsole() {
+            console.clear();
+            console.log('🧹 Console cleared');
+        }
+        
+        // Auto-run tests on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📱 DOM loaded, running tests...');
+            
+            // Wait a bit for custom elements to be defined
             setTimeout(() => {
-                checkSidebarStatus();
-            }, 100);
+                checkRegistration();
+                testBasicSidebar();
+                testSidebarWithItems();
+            }, 200);
         });
         
-        function checkSidebarStatus() {
-            const statusDiv = document.getElementById('status');
-            
-            if (!sidebar) {
-                statusDiv.innerHTML = '<span style="color: red;">❌ Sidebar element not found</span>';
-                return;
-            }
-            
-            if (!sidebar.shadowRoot) {
-                statusDiv.innerHTML = '<span style="color: orange;">⚠️ Shadow root not created yet</span>';
-                return;
-            }
-            
-            const shadowContent = sidebar.shadowRoot.innerHTML;
-            const hasCSS = shadowContent.includes('<style>');
-            const hasContent = shadowContent.includes('sc-sidebar');
-            
-            let statusHTML = '<span style="color: green;">✅ Sidebar found</span><br>';
-            statusHTML += `<span style="color: ${hasCSS ? 'green' : 'red'};">${hasCSS ? '✅' : '❌'} CSS: ${hasCSS ? 'Loaded' : 'Missing'}</span><br>`;
-            statusHTML += `<span style="color: ${hasContent ? 'green' : 'red'};">${hasContent ? '✅' : '❌'} Content: ${hasContent ? 'Rendered' : 'Not Rendered'}</span><br>`;
-            statusHTML += `<span style="color: blue;">📊 Shadow Root Size: ${shadowContent.length} characters</span>`;
-            
-            statusDiv.innerHTML = statusHTML;
-            
-            logToOutput(`Sidebar status checked - CSS: ${hasCSS}, Content: ${hasContent}`);
-        }
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('🚨 Global error:', event.error);
+            const consoleOutput = document.getElementById('console-output');
+            consoleOutput.innerHTML = `<div class="error">🚨 Global error: ${event.error.message}</div>`;
+        });
         
-        function checkShadowRoot() {
-            if (!sidebar) {
-                logToOutput('❌ Sidebar not found');
-                return;
-            }
-            
-            if (!sidebar.shadowRoot) {
-                logToOutput('❌ Shadow root not created');
-                return;
-            }
-            
-            logToOutput('✅ Shadow root found');
-            logToOutput(`Shadow root content length: ${sidebar.shadowRoot.innerHTML.length}`);
-            
-            // Check for specific elements
-            const sidebarElement = sidebar.shadowRoot.querySelector('.sc-sidebar');
-            if (sidebarElement) {
-                logToOutput('✅ .sc-sidebar element found');
-                logToOutput(`Sidebar classes: ${sidebarElement.className}`);
-                logToOutput(`Sidebar styles: ${sidebarElement.getAttribute('style')}`);
-            } else {
-                logToOutput('❌ .sc-sidebar element not found');
-            }
-        }
-        
-        function checkCSS() {
-            if (!sidebar || !sidebar.shadowRoot) {
-                logToOutput('❌ Cannot check CSS - sidebar or shadow root not ready');
-                return;
-            }
-            
-            const styleElement = sidebar.shadowRoot.querySelector('style');
-            if (styleElement) {
-                logToOutput('✅ Style element found');
-                logToOutput(`CSS content length: ${styleElement.textContent.length}`);
-                logToOutput(`CSS preview: ${styleElement.textContent.substring(0, 200)}...`);
-            } else {
-                logToOutput('❌ Style element not found');
-            }
-            
-            const linkElement = sidebar.shadowRoot.querySelector('link');
-            if (linkElement) {
-                logToOutput('✅ FontAwesome link found');
-                logToOutput(`FontAwesome URL: ${linkElement.href}`);
-            } else {
-                logToOutput('❌ FontAwesome link not found');
-            }
-        }
-        
-        function checkItems() {
-            if (!sidebar) {
-                logToOutput('❌ Sidebar not found');
-                return;
-            }
-            
-            logToOutput(`Items count: ${sidebar.items ? sidebar.items.length : 'undefined'}`);
-            
-            if (sidebar.items && sidebar.items.length > 0) {
-                sidebar.items.forEach((item, index) => {
-                    logToOutput(`Item ${index}: ${item.text} (${item.icon})`);
-                });
-            }
-        }
-        
-        function forceRender() {
-            if (!sidebar) {
-                logToOutput('❌ Sidebar not found');
-                return;
-            }
-            
-            logToOutput('🔄 Forcing render...');
-            sidebar.render();
-            logToOutput('✅ Render completed');
-            
-            // Check status again
-            setTimeout(checkSidebarStatus, 100);
-        }
-        
-        // Check status every 2 seconds
-        setInterval(checkSidebarStatus, 2000);
+        // Unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('🚨 Unhandled promise rejection:', event.reason);
+            const consoleOutput = document.getElementById('console-output');
+            consoleOutput.innerHTML = `<div class="error">🚨 Unhandled promise rejection: ${event.reason}</div>`;
+        });
     </script>
 </body>
 </html>
