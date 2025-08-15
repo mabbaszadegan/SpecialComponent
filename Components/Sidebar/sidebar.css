@@ -1,33 +1,4 @@
 /* Sidebar Web Components Styles */
-
-/* CSS Variables for theming */
-:root {
-  /* Light theme */
-  --sc-light-bg: #ffffff;
-  --sc-light-text: #333333;
-  --sc-light-border: #e0e0e0;
-  --sc-light-hover: #f5f5f5;
-  --sc-light-active: #e3f2fd;
-  --sc-light-shadow: rgba(0, 0, 0, 0.1);
-  
-  /* Dark theme */
-  --sc-dark-bg: #2c3e50;
-  --sc-dark-text: #ecf0f1;
-  --sc-dark-border: #34495e;
-  --sc-dark-hover: #34495e;
-  --sc-dark-active: #3498db;
-  --sc-dark-shadow: rgba(0, 0, 0, 0.3);
-  
-  /* Common */
-  --sc-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  --sc-border-radius: 8px;
-  --sc-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  
-  /* Layout dimensions */
-  --sc-sidebar-width: 280px;
-  --sc-sidebar-collapsed-width: 60px;
-}
-
 /* Sidebar Container - improved flexbox layout */
 .sc-sidebar {
   display: flex;
@@ -407,6 +378,7 @@
   opacity: 0;
   transform: translateX(-20px);
   visibility: hidden;
+  pointer-events: none;
 }
 
 .sc-sidebar.collapsed .sc-item-text,
@@ -415,21 +387,40 @@
   opacity: 0;
   transform: translateX(-20px);
   visibility: hidden;
+  pointer-events: none;
 }
 
-.sc-sidebar.collapsed .sc-sidebar-item {
-  padding: 15px 0;
-  justify-content: center;
-}
-
-.sc-sidebar.collapsed .sc-sidebar-item .sc-item-icon {
-  margin: 0;
-  font-size: 18px;
-  transition: var(--sc-transition);
-}
+/* These rules are now handled by the enhanced collapsed state styling below */
 
 .sc-sidebar.collapsed .sc-nested-items {
   display: none !important;
+}
+
+/* Hide search input when collapsed */
+.sc-sidebar.collapsed .sc-sidebar-search input {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Hide toggle button text when collapsed */
+.sc-sidebar.collapsed .sc-toggle-btn {
+  justify-content: center;
+  width: 100%;
+}
+
+/* These rules are now handled by the enhanced collapsed state styling below */
+
+.sc-sidebar.collapsed .sc-sidebar-item:hover {
+  background: var(--sc-light-hover);
+  transform: scale(1.1);
+  border-radius: 8px;
+}
+
+.sc-sidebar[theme="dark"].collapsed .sc-sidebar-item:hover {
+  background: var(--sc-dark-hover);
+  transform: scale(1.1);
+  border-radius: 8px;
 }
 
 /* Tooltip for collapsed items */
@@ -467,6 +458,36 @@
   background: var(--sc-dark-bg);
   color: var(--sc-dark-text);
   box-shadow: 0 2px 10px var(--sc-dark-shadow);
+}
+
+/* Enhanced collapsed state styling */
+.sc-sidebar.collapsed .sc-sidebar-item {
+  padding: 15px 0;
+  justify-content: center;
+  text-align: center;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.sc-sidebar.collapsed .sc-sidebar-item .sc-item-icon {
+  margin: 0;
+  font-size: 18px;
+  transition: var(--sc-transition);
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure proper spacing between collapsed items */
+.sc-sidebar.collapsed .sc-sidebar-content {
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 /* Main content area - automatically adjusts to sidebar width */
@@ -728,5 +749,9 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+  }
+
+  .sc-hidden{
+    display: none;
   }
 }
