@@ -60,18 +60,46 @@ class ScSidebar extends HTMLElement {
     this._updateAdjacentElementsLayout();
   }
 
+  // Method to restore original styles of adjacent sections
+  restoreAdjacentSections() {
+    this._restoreAdjacentSections();
+  }
+
+  // Method to manually set sidebar width and update layout
+  setWidth(width) {
+    if (width) {
+      this.setAttribute("width", width);
+      this._handleWidthAttributeChange(width);
+    }
+  }
+
   getLayoutInfo() {
     const position = this.getAttribute("position") || "left";
     const isCollapsed = this._state.collapsed;
-    const sidebarWidth = isCollapsed ? 60 : 280;
+    const sidebarWidth = this._getCurrentSidebarWidth();
     
     return {
       position: position,
       collapsed: isCollapsed,
       width: sidebarWidth,
       marginLeft: position === "left" ? sidebarWidth : 0,
-      marginRight: position === "right" ? sidebarWidth : 0
+      marginRight: position === "right" ? sidebarWidth : 0,
+      autoLayout: true,
+      responsive: true
     };
+  }
+
+  // Get information about adjacent sections that are being managed
+  getAdjacentSectionsInfo() {
+    const adjacentSections = this._findAdjacentSections();
+    return adjacentSections.map(section => ({
+      element: section,
+      tagName: section.tagName,
+      className: section.className,
+      id: section.id,
+      isResponsive: section.hasAttribute('data-sidebar-responsive'),
+      hasOriginalStyles: !!section._originalStyles
+    }));
   }
 
   // Private methods - All internal logic is private
@@ -1206,6 +1234,9 @@ class ScSidebar extends HTMLElement {
     // Update main content layout
     this._updateMainContentLayout();
 
+    // Automatically update adjacent sections layout
+    this._updateAdjacentElementsLayout();
+
     // Save state
     this._saveState();
 
@@ -1295,6 +1326,9 @@ class ScSidebar extends HTMLElement {
     // Update CSS custom properties for CSS-based layouts
     this._updateCSSCustomProperties(sidebarWidth, position);
     
+    // Automatically adjust adjacent sections based on sidebar width
+    this._autoAdjustAdjacentSections(sidebarWidth, position);
+    
     // Dispatch custom event for external layout management
     this.dispatchEvent(new CustomEvent('sidebar-layout-changed', {
       detail: {
@@ -1346,6 +1380,161 @@ class ScSidebar extends HTMLElement {
     return adjacentElements;
   }
 
+  _autoAdjustAdjacentSections(sidebarWidth, position) {
+    // Automatically detect and adjust adjacent sections based on sidebar width
+    const adjacentSections = this._findAdjacentSections();
+    
+    adjacentSections.forEach(section => {
+      // Apply automatic layout adjustments
+      this._applySectionLayout(section, sidebarWidth, position);
+    });
+  }
+
+  _findAdjacentSections() {
+    // Find all potential adjacent sections that need automatic layout adjustment
+    const sections = [];
+    const position = this.getAttribute("position") || "left";
+    
+    // Look for common section containers
+    const sectionSelectors = [
+      'main', 'section', 'article', 'div[role="main"]', 'div[role="content"]',
+      '.main-content', '.content', '.page-content', '.app-content',
+      '.container', '.wrapper', '.main', '.page', '.app-main',
+      '[data-layout="content"]', '[data-role="content"]'
+    ];
+    
+    sectionSelectors.forEach(selector => {
+      try {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+          if (element !== this && !sections.includes(element)) {
+            sections.push(element);
+          }
+        });
+      } catch (e) {
+        // Ignore invalid selectors
+      }
+    });
+    
+    // Also look for elements that are direct siblings or children of body
+    const bodyChildren = Array.from(document.body.children);
+    bodyChildren.forEach(child => {
+      if (child !== this && 
+          !child.classList.contains('sc-sidebar') &&
+          !child.classList.contains('sc-sidebar-item') &&
+          child.tagName !== 'SCRIPT' &&
+          child.tagName !== 'STYLE' &&
+          child.tagName !== 'LINK' &&
+          child.tagName !== 'META' &&
+          !sections.includes(child)) {
+        sections.push(child);
+      }
+    });
+    
+    return sections;
+  }
+
+  _applySectionLayout(section, sidebarWidth, position) {
+    // Apply automatic layout adjustments to a section
+    const currentStyle = window.getComputedStyle(section);
+    
+    // Check if the section already has specific layout properties
+    const hasGridLayout = currentStyle.display === 'grid';
+    const hasFlexLayout = currentStyle.display === 'flex';
+    const hasCustomMargin = section.style.marginLeft || section.style.marginRight;
+    
+    if (position === "left") {
+      // Sidebar on left - adjust left margin or grid template
+      if (hasGridLayout) {
+        // Adjust grid template columns
+        const currentGrid = currentStyle.gridTemplateColumns;
+        if (currentGrid && !currentGrid.includes('auto')) {
+          // Update grid template to accommodate sidebar
+          section.style.gridTemplateColumns = `${sidebarWidth}px 1fr`;
+        }
+      } else if (hasFlexLayout) {
+        // For flex layouts, ensure proper spacing
+        if (!hasCustomMargin) {
+          section.style.marginLeft = `${sidebarWidth}px`;
+        }
+      } else {
+        // Default margin adjustment
+        if (!hasCustomMargin) {
+          section.style.marginLeft = `${sidebarWidth}px`;
+        }
+      }
+      
+      // Add smooth transition
+      if (!section.style.transition) {
+        section.style.transition = "margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
+      }
+      
+    } else if (position === "right") {
+      // Sidebar on right - adjust right margin or grid template
+      if (hasGridLayout) {
+        // Adjust grid template columns
+        const currentGrid = currentStyle.gridTemplateColumns;
+        if (currentGrid && !currentGrid.includes('auto')) {
+          // Update grid template to accommodate sidebar
+          section.style.gridTemplateColumns = `1fr ${sidebarWidth}px`;
+        }
+      } else if (hasFlexLayout) {
+        // For flex layouts, ensure proper spacing
+        if (!hasCustomMargin) {
+          section.style.marginRight = `${sidebarWidth}px`;
+        }
+      } else {
+        // Default margin adjustment
+        if (!hasCustomMargin) {
+          section.style.marginRight = `${sidebarWidth}px`;
+        }
+      }
+      
+      // Add smooth transition
+      if (!section.style.transition) {
+        section.style.transition = "margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
+      }
+    }
+    
+    // Add responsive behavior
+    this._addResponsiveBehavior(section, sidebarWidth, position);
+  }
+
+  _addResponsiveBehavior(section, sidebarWidth, position) {
+    // Add responsive behavior to sections
+    if (!section.hasAttribute('data-sidebar-responsive')) {
+      section.setAttribute('data-sidebar-responsive', 'true');
+      
+      // Store original styles for restoration
+      if (!section._originalStyles) {
+        section._originalStyles = {
+          marginLeft: section.style.marginLeft,
+          marginRight: section.style.marginRight,
+          gridTemplateColumns: section.style.gridTemplateColumns,
+          transition: section.style.transition
+        };
+      }
+    }
+  }
+
+  _restoreAdjacentSections() {
+    // Restore original styles of all adjacent sections
+    const adjacentSections = this._findAdjacentSections();
+    
+    adjacentSections.forEach(section => {
+      if (section._originalStyles) {
+        // Restore original styles
+        section.style.marginLeft = section._originalStyles.marginLeft || '';
+        section.style.marginRight = section._originalStyles.marginRight || '';
+        section.style.gridTemplateColumns = section._originalStyles.gridTemplateColumns || '';
+        section.style.transition = section._originalStyles.transition || '';
+        
+        // Remove responsive attribute
+        section.removeAttribute('data-sidebar-responsive');
+      }
+    });
+  }
+
   _updateCSSCustomProperties(sidebarWidth, position) {
     // Set CSS custom properties on document root for CSS-based layouts
     const root = document.documentElement;
@@ -1375,6 +1564,9 @@ class ScSidebar extends HTMLElement {
     
     // Listen for attribute changes that affect layout
     this._observeLayoutAttributes();
+    
+    // Set up automatic width monitoring
+    this._setupWidthMonitoring();
   }
 
   _handleWindowResize() {
@@ -1383,6 +1575,68 @@ class ScSidebar extends HTMLElement {
     this._resizeTimeout = setTimeout(() => {
       this._updateAdjacentElementsLayout();
     }, 100);
+  }
+
+  _setupWidthMonitoring() {
+    // Monitor sidebar width changes and automatically adjust layout
+    if (!this._widthObserver) {
+      this._widthObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.target === this) {
+            const newWidth = entry.contentRect.width;
+            const currentWidth = this._getCurrentSidebarWidth();
+            
+            // Only update if width actually changed
+            if (Math.abs(newWidth - currentWidth) > 1) {
+              this._handleDynamicWidthChange(newWidth);
+            }
+          }
+        }
+      });
+      
+      this._widthObserver.observe(this);
+    }
+  }
+
+  _getCurrentSidebarWidth() {
+    debugger;   
+    // Get the current sidebar width from state or computed styles
+    if (this._state.collapsed) {
+      return 60; // Collapsed width
+    }
+    
+    const widthAttr = this.getAttribute("width");
+    if (widthAttr) {
+      const parsedWidth = this._parseWidthValue(widthAttr);
+      if (parsedWidth !== null) {
+        return parsedWidth;
+      }
+    }
+    
+    // Default width
+    return 280;
+  }
+
+  _handleDynamicWidthChange(newWidth) {
+    // Handle dynamic width changes (e.g., from CSS, responsive design, etc.)
+    const position = this.getAttribute("position") || "left";
+    
+    // Update internal width state
+    this._updateSidebarWidth(newWidth);
+    
+    // Automatically adjust adjacent sections
+    this._updateAdjacentElementsLayout();
+    
+    // Dispatch dynamic width change event
+    this.dispatchEvent(new CustomEvent('sidebar-dynamic-width-changed', {
+      detail: {
+        width: newWidth,
+        position: position,
+        collapsed: this._state.collapsed,
+        source: 'dynamic'
+      },
+      bubbles: true
+    }));
   }
 
   _observeLayoutAttributes() {
@@ -1427,6 +1681,11 @@ class ScSidebar extends HTMLElement {
     if (this._attributeObserver) {
       this._attributeObserver.disconnect();
       this._attributeObserver = null;
+    }
+    
+    if (this._widthObserver) {
+      this._widthObserver.disconnect();
+      this._widthObserver = null;
     }
   }
 
@@ -1552,8 +1811,111 @@ class ScSidebar extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue !== newValue) {
-      this._render();
-      this._setupEventListeners();
+      // Handle specific attribute changes
+      if (name === 'width') {
+        // Width attribute changed - update layout automatically
+        this._handleWidthAttributeChange(newValue);
+      } else if (name === 'position') {
+        // Position changed - update layout for new position
+        this._updateAdjacentElementsLayout();
+      } else {
+        // Other attributes - re-render and setup
+        this._render();
+        this._setupEventListeners();
+      }
+    }
+  }
+
+  _handleWidthAttributeChange(newWidth) {
+    // Handle width attribute changes and automatically update layout
+    if (newWidth) {
+      // Parse the new width value
+      const parsedWidth = this._parseWidthValue(newWidth);
+      
+      if (parsedWidth !== null) {
+        // Update the sidebar's internal width state
+        this._updateSidebarWidth(parsedWidth);
+        
+        // Automatically update adjacent sections layout
+        this._updateAdjacentElementsLayout();
+        
+        // Dispatch width change event
+        this.dispatchEvent(new CustomEvent('sidebar-width-changed', {
+          detail: {
+            width: parsedWidth,
+            position: this.getAttribute("position") || "left",
+            collapsed: this._state.collapsed
+          },
+          bubbles: true
+        }));
+      }
+    }
+  }
+
+  _parseWidthValue(widthValue) {
+    // Parse width value from various formats (px, %, em, rem, etc.)
+    if (typeof widthValue === 'string') {
+      // Remove any whitespace
+      widthValue = widthValue.trim();
+      
+      // Handle percentage values
+      if (widthValue.endsWith('%')) {
+        const percentage = parseFloat(widthValue);
+        if (!isNaN(percentage)) {
+          return (window.innerWidth * percentage) / 100;
+        }
+      }
+      
+      // Handle pixel values
+      if (widthValue.endsWith('px')) {
+        const pixels = parseFloat(widthValue);
+        if (!isNaN(pixels)) {
+          return pixels;
+        }
+      }
+      
+      // Handle em values
+      if (widthValue.endsWith('em')) {
+        const em = parseFloat(widthValue);
+        if (!isNaN(em)) {
+          return em * 16; // Assuming 16px base font size
+        }
+      }
+      
+      // Handle rem values
+      if (widthValue.endsWith('rem')) {
+        const rem = parseFloat(widthValue);
+        if (!isNaN(rem)) {
+          return rem * 16; // Assuming 16px base font size
+        }
+      }
+      
+      // Handle numeric values (assume pixels)
+      const numeric = parseFloat(widthValue);
+      if (!isNaN(numeric)) {
+        return numeric;
+      }
+    }
+    
+    return null;
+  }
+
+  _updateSidebarWidth(newWidth) {
+    // Update the sidebar's internal width state
+    const sidebarElement = this._shadow.querySelector(".sc-sidebar");
+    if (sidebarElement) {
+      // Update CSS custom properties
+      sidebarElement.style.setProperty('--sc-sidebar-width', `${newWidth}px`);
+      sidebarElement.style.width = `${newWidth}px`;
+      sidebarElement.style.minWidth = `${newWidth}px`;
+      sidebarElement.style.maxWidth = `${newWidth}px`;
+      sidebarElement.style.flexBasis = `${newWidth}px`;
+    }
+    
+    // Update the component's width attribute if it's different
+    const currentWidth = this.getAttribute("width");
+    if (currentWidth !== newWidth.toString()) {
+      this.setAttribute("width", newWidth.toString());
     }
   }
 
