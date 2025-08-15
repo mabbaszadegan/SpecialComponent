@@ -30,7 +30,7 @@ class ScSidebar extends HTMLElement {
     ];
   }
 
-  // Public API Methods
+  // Public API Methods - Only expose what's necessary
   toggleCollapse() {
     this._toggleCollapse();
   }
@@ -47,7 +47,7 @@ class ScSidebar extends HTMLElement {
     this._updateItems(items);
   }
 
-  // Private methods
+  // Private methods - All internal logic is private
   _init() {
     this._loadState();
     this._render();
@@ -789,7 +789,7 @@ class ScSidebarItem extends HTMLElement {
     return ["key", "text", "icon", "description", "behavior"];
   }
 
-  // Public API Methods
+  // Public API Methods - Only expose what's necessary
   expand() {
     this._expand();
   }
@@ -798,7 +798,7 @@ class ScSidebarItem extends HTMLElement {
     this._collapse();
   }
 
-  // Private methods
+  // Private methods - All internal logic is private
   _init() {
     this._analyzeItemCapabilities();
     this._render();

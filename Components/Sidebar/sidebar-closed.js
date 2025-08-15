@@ -30,7 +30,7 @@ class ScSidebar extends HTMLElement {
     ];
   }
 
-  // Public API Methods
+  // Public API Methods - Only expose what's necessary
   toggleCollapse() {
     this._toggleCollapse();
   }
@@ -47,7 +47,7 @@ class ScSidebar extends HTMLElement {
     this._updateItems(items);
   }
 
-  // Private methods
+  // Private methods - All internal logic is private
   _init() {
     this._loadState();
     this._render();
@@ -64,337 +64,8 @@ class ScSidebar extends HTMLElement {
     const collapsible = this.hasAttribute("collapsible");
 
     this._shadow.innerHTML = `
-            <style>
-                /* CSS Variables for theming - defined locally for Shadow DOM compatibility */
-                :host {
-                    /* Light theme */
-                    --sc-light-bg: #ffffff;
-                    --sc-light-text: #333333;
-                    --sc-light-border: #e0e0e0;
-                    --sc-light-hover: #f5f5f5;
-                    --sc-light-active: #e3f2fd;
-                    --sc-light-shadow: rgba(0, 0, 0, 0.1);
-                    
-                    /* Dark theme */
-                    --sc-dark-bg: #2c3e50;
-                    --sc-dark-text: #ecf0f1;
-                    --sc-dark-border: #34495e;
-                    --sc-dark-hover: #34495e;
-                    --sc-dark-active: #3498db;
-                    --sc-dark-shadow: rgba(0, 0, 0, 0.3);
-                    
-                    /* Common */
-                    --sc-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    --sc-border-radius: 8px;
-                    --sc-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    
-                    /* Layout dimensions */
-                    --sc-sidebar-width: 280px;
-                    --sc-sidebar-collapsed-width: 60px;
-                }
-
-                /* Sidebar Container - improved flexbox layout */
-                .sc-sidebar {
-                  display: flex;
-                  flex-direction: column;
-                  height: 100vh;
-                  background: var(--sc-light-bg);
-                  color: var(--sc-light-text);
-                  border: 1px solid var(--sc-light-border);
-                  box-shadow: 0 2px 10px var(--sc-light-shadow);
-                  font-family: var(--sc-font-family);
-                  overflow: hidden;
-                  top: 0;
-                  left: 0;
-                  z-index: 1000;
-                  
-                  /* Use flex-basis for smooth width transitions */
-                  flex: 0 0 var(--sc-sidebar-width);
-                  width: var(--sc-sidebar-width);
-                  min-width: var(--sc-sidebar-width);
-                  max-width: var(--sc-sidebar-width);
-                  
-                  /* Smooth transitions for all properties */
-                  transition: 
-                    flex-basis var(--sc-transition),
-                    width var(--sc-transition),
-                    min-width var(--sc-transition),
-                    max-width var(--sc-transition),
-                    transform var(--sc-transition),
-                    box-shadow var(--sc-transition);
-                  
-                  /* Prevent layout shifts */
-                  will-change: flex-basis, width;
-                }
-
-                .sc-sidebar[theme="dark"] {
-                  background: var(--sc-dark-bg);
-                  color: var(--sc-dark-text);
-                  border-color: var(--sc-dark-border);
-                  box-shadow: 0 2px 10px var(--sc-dark-shadow);
-                }
-
-                /* Position variants */
-                .sc-sidebar[position="left"] {
-                  border-right: 1px solid var(--sc-light-border);
-                }
-
-                .sc-sidebar[position="right"] {
-                  left: auto;
-                  right: 0;
-                  border-left: 1px solid var(--sc-light-border);
-                }
-
-                .sc-sidebar[position="right"][theme="dark"] {
-                  border-left-color: var(--sc-dark-border);
-                }
-
-                /* Header */
-                .sc-sidebar-header {
-                  padding: 20px;
-                  border-bottom: 1px solid var(--sc-light-border);
-                  background: var(--sc-light-bg);
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  min-height: 60px;
-                  
-                  /* Smooth transitions for content */
-                  transition: 
-                    opacity var(--sc-transition),
-                    transform var(--sc-transition),
-                    visibility var(--sc-transition);
-                }
-
-                .sc-sidebar[theme="dark"] .sc-sidebar-header {
-                  border-bottom-color: var(--sc-dark-border);
-                  background: var(--sc-dark-bg);
-                }
-
-                .sc-sidebar-header h3 {
-                  margin: 0;
-                  font-size: 18px;
-                  font-weight: 600;
-                  transition: 
-                    opacity var(--sc-transition),
-                    transform var(--sc-transition),
-                    visibility var(--sc-transition);
-                  opacity: 1;
-                  transform: translateX(0);
-                  visibility: visible;
-                }
-
-                .sc-sidebar-header .sc-toggle-btn {
-                  background: none;
-                  border: none;
-                  font-size: 20px;
-                  cursor: pointer;
-                  color: inherit;
-                  padding: 5px;
-                  border-radius: 4px;
-                  transition: var(--sc-transition);
-                }
-
-                .sc-sidebar-header .sc-toggle-btn:hover {
-                  background: var(--sc-light-hover);
-                  transform: scale(1.1);
-                }
-
-                .sc-sidebar[theme="dark"] .sc-sidebar-header .sc-toggle-btn:hover {
-                  background: var(--sc-dark-hover);
-                }
-
-                /* Search */
-                .sc-sidebar-search {
-                  padding: 15px 20px;
-                  border-bottom: 1px solid var(--sc-light-border);
-                  transition: 
-                    opacity var(--sc-transition),
-                    transform var(--sc-transition),
-                    visibility var(--sc-transition);
-                  opacity: 1;
-                  transform: translateX(0);
-                  visibility: visible;
-                }
-
-                .sc-sidebar[theme="dark"] .sc-sidebar-search {
-                  border-bottom-color: var(--sc-dark-border);
-                }
-
-                .sc-sidebar-search input {
-                  width: 100%;
-                  padding: 10px 15px;
-                  border: 1px solid var(--sc-light-border);
-                  border-radius: var(--sc-border-radius);
-                  background: var(--sc-light-bg);
-                  color: var(--sc-light-text);
-                  font-size: 14px;
-                  transition: var(--sc-transition);
-                }
-
-                .sc-sidebar[theme="dark"] .sc-sidebar-search input {
-                  border-color: var(--sc-dark-border);
-                  background: var(--sc-dark-bg);
-                  color: var(--sc-dark-text);
-                }
-
-                .sc-sidebar-search input:focus {
-                  outline: none;
-                  border-color: #3498db;
-                  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-                }
-
-                /* Content */
-                .sc-sidebar-content {
-                  flex: 1;
-                  overflow-y: auto;
-                  padding: 10px 0;
-                  transition: var(--sc-transition);
-                }
-
-                .sc-sidebar-content::-webkit-scrollbar {
-                  width: 6px;
-                }
-
-                .sc-sidebar-content::-webkit-scrollbar-track {
-                  background: transparent;
-                }
-
-                .sc-sidebar-content::-webkit-scrollbar-thumb {
-                  background: var(--sc-light-border);
-                  border-radius: 3px;
-                }
-
-                .sc-sidebar[theme="dark"] .sc-sidebar-content::-webkit-scrollbar-thumb {
-                  background: var(--sc-dark-border);
-                }
-
-                /* Footer */
-                .sc-sidebar-footer {
-                  padding: 20px;
-                  border-top: 1px solid var(--sc-light-border);
-                  background: var(--sc-light-bg);
-                  text-align: center;
-                  font-size: 12px;
-                  color: #666;
-                  transition: 
-                    opacity var(--sc-transition),
-                    transform var(--sc-transition),
-                    visibility var(--sc-transition);
-                  opacity: 1;
-                  transform: translateX(0);
-                  visibility: visible;
-                }
-
-                .sc-sidebar[theme="dark"] .sc-sidebar-footer {
-                  border-top-color: var(--sc-dark-border);
-                  background: var(--sc-dark-bg);
-                  color: #bdc3c7;
-                }
-
-                /* Collapsed state */
-                .sc-sidebar.collapsed {
-                  flex-basis: var(--sc-sidebar-collapsed-width);
-                  width: var(--sc-sidebar-collapsed-width) !important;
-                  min-width: var(--sc-sidebar-collapsed-width);
-                  max-width: var(--sc-sidebar-collapsed-width);
-                }
-
-                .sc-sidebar.collapsed .sc-sidebar-header h3,
-                .sc-sidebar.collapsed .sc-sidebar-search,
-                .sc-sidebar.collapsed .sc-sidebar-footer {
-                  opacity: 0;
-                  transform: translateX(-20px);
-                  visibility: hidden;
-                  pointer-events: none;
-                }
-
-                .sc-sidebar.collapsed .sc-nested-items {
-                  display: none !important;
-                }
-
-                .sc-sidebar.collapsed .sc-sidebar-search input {
-                  opacity: 0;
-                  visibility: hidden;
-                  pointer-events: none;
-                }
-
-                .sc-sidebar.collapsed .sc-toggle-btn {
-                  justify-content: center;
-                  width: 100%;
-                }
-
-                /* Responsive */
-                @media (max-width: 768px) {
-                  .sc-sidebar {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    z-index: 1000;
-                    transform: translateX(-100%);
-                    transition: transform var(--sc-transition);
-                  }
-                  
-                  .sc-sidebar[position="right"] {
-                    left: auto;
-                    right: 0;
-                    transform: translateX(100%);
-                  }
-                  
-                  .sc-sidebar.mobile-open {
-                    transform: translateX(0);
-                  }
-                }
-
-                /* Utility classes */
-                .sc-hidden {
-                  display: none !important;
-                }
-
-                .sc-visible {
-                  display: block !important;
-                }
-
-                /* Smooth transitions for all interactive elements */
-                .sc-sidebar * {
-                  transition: var(--sc-transition);
-                }
-
-                /* Prevent layout shifts during transitions */
-                .sc-sidebar {
-                  will-change: flex-basis, width;
-                }
-
-                /* Loading states for smooth transitions */
-                .sc-sidebar.transitioning {
-                  pointer-events: none;
-                }
-
-                .sc-sidebar.transitioning * {
-                  pointer-events: none;
-                }
-
-                /* Mobile overlay */
-                .sc-sidebar-overlay {
-                  position: fixed;
-                  top: 0;
-                  left: 0;
-                  right: 0;
-                  bottom: 0;
-                  background: rgba(0, 0, 0, 0.5);
-                  z-index: 999;
-                  opacity: 0;
-                  visibility: hidden;
-                  transition: var(--sc-transition);
-                  pointer-events: none;
-                }
-
-                .sc-sidebar-overlay.visible {
-                  opacity: 1;
-                  visibility: visible;
-                  pointer-events: auto;
-                }
-            </style>
+            <link rel="stylesheet" href="sidebar-closed.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
             
             <div class="sc-sidebar ${this._state.collapsed ? "collapsed" : ""} ${
       this._state.mobileOpen ? "mobile-open" : ""
@@ -577,7 +248,7 @@ class ScSidebar extends HTMLElement {
     if (sidebarElement) {
       sidebarElement.classList.toggle("collapsed", this._state.collapsed);
     }
-
+debugger
     const sidebarItemElements = document.querySelectorAll(
       ".sc-sidebar-item .sc-item-content"
     );
@@ -789,7 +460,7 @@ class ScSidebarItem extends HTMLElement {
     return ["key", "text", "icon", "description", "behavior"];
   }
 
-  // Public API Methods
+  // Public API Methods - Only expose what's necessary
   expand() {
     this._expand();
   }
@@ -798,7 +469,7 @@ class ScSidebarItem extends HTMLElement {
     this._collapse();
   }
 
-  // Private methods
+  // Private methods - All internal logic is private
   _init() {
     this._analyzeItemCapabilities();
     this._render();
@@ -854,256 +525,13 @@ class ScSidebarItem extends HTMLElement {
     const isClickable =
       behavior === "clickable" || (!hasChildren && behavior !== "expandable");
 
+    // Generate tooltip menu HTML for collapsed state
+    const tooltipMenu = this._generateTooltipMenu(text, icon, description, hasChildren);
+
     this._shadow.innerHTML = `
-            <style>
-                /* CSS Variables for theming - defined locally for Shadow DOM compatibility */
-                :host {
-                    /* Light theme */
-                    --sc-light-bg: #ffffff;
-                    --sc-light-text: #333333;
-                    --sc-light-border: #e0e0e0;
-                    --sc-light-hover: #f5f5f5;
-                    --sc-light-active: #e3f2fd;
-                    --sc-light-shadow: rgba(0, 0, 0, 0.1);
-                    
-                    /* Dark theme */
-                    --sc-dark-bg: #2c3e50;
-                    --sc-dark-text: #ecf0f1;
-                    --sc-dark-border: #34495e;
-                    --sc-dark-hover: #34495e;
-                    --sc-dark-active: #3498db;
-                    --sc-dark-shadow: rgba(0, 0, 0, 0.3);
-                    
-                    /* Common */
-                    --sc-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    --sc-border-radius: 8px;
-                    --sc-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    
-                    /* Layout dimensions */
-                    --sc-sidebar-width: 280px;
-                    --sc-sidebar-collapsed-width: 60px;
-                }
+            <link rel="stylesheet" href="sidebar-closed.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-                /* Sidebar Items */
-                .sc-sidebar-item {
-                  display: flex;
-                  align-items: center;
-                  padding: 12px 20px;
-                  cursor: pointer;
-                  transition: var(--sc-transition);
-                  border: none;
-                  background: none;
-                  width: 100%;
-                  text-align: left;
-                  color: inherit;
-                  font-family: inherit;
-                  font-size: 14px;
-                  position: relative;
-                }
-
-                .sc-sidebar-item:hover {
-                  background: var(--sc-light-hover);
-                  transform: translateX(5px);
-                }
-
-                .sc-sidebar-item.active {
-                  background: var(--sc-light-active);
-                  color: #1976d2;
-                }
-
-                /* Expandable items */
-                .sc-sidebar-item[data-expandable="true"] {
-                  cursor: pointer;
-                }
-
-                /* Clickable items */
-                .sc-sidebar-item[data-clickable="true"] {
-                  cursor: pointer;
-                }
-
-                /* Inactive items */
-                .sc-sidebar-item[data-clickable="false"][data-expandable="false"] {
-                  cursor: default;
-                  opacity: 0.6;
-                }
-
-                .sc-sidebar-item .sc-item-icon {
-                  width: 20px;
-                  margin-right: 12px;
-                  text-align: center;
-                  font-size: 16px;
-                  flex-shrink: 0;
-                  transition: var(--sc-transition);
-                }
-
-                .sc-sidebar-item .sc-item-content {
-                  flex: 1;
-                  display: flex;
-                  flex-direction: column;
-                  transition: 
-                    opacity var(--sc-transition),
-                    transform var(--sc-transition),
-                    visibility var(--sc-transition);
-                  opacity: 1;
-                  transform: translateX(0);
-                  visibility: visible;
-                }
-
-                .sc-sidebar-item .sc-item-text {
-                  font-weight: 500;
-                  margin-bottom: 2px;
-                  transition: var(--sc-transition);
-                }
-
-                .sc-sidebar-item .sc-item-description {
-                  font-size: 12px;
-                  color: #666;
-                  opacity: 0.8;
-                  transition: var(--sc-transition);
-                }
-
-                .sc-sidebar-item .sc-item-arrow {
-                  margin-left: auto;
-                  transition: var(--sc-transition);
-                  font-size: 12px;
-                }
-
-                .sc-sidebar-item.expanded .sc-item-arrow {
-                  transform: rotate(90deg);
-                }
-
-                /* Nested items - Pure CSS transitions without JavaScript manipulation */
-                .sc-nested-items {
-                  max-height: 0;
-                  overflow: hidden;
-                  transition: 
-                    max-height var(--sc-transition),
-                    opacity var(--sc-transition),
-                    transform var(--sc-transition),
-                    padding var(--sc-transition);
-                  background: rgba(0, 0, 0, 0.02);
-                  opacity: 0;
-                  transform: translateY(-10px);
-                  padding: 0;
-                  margin: 0;
-                  border: none;
-                }
-
-                .sc-nested-items.expanded {
-                  max-height: 500px;
-                  opacity: 1;
-                  transform: translateY(0);
-                  padding: 5px 0;
-                }
-
-                /* Ensure nested items are visible when expanded */
-                .sc-nested-items:not(.sc-hidden) {
-                  display: block !important;
-                }
-
-                .sc-nested-items .sc-sidebar-item {
-                  padding-left: 40px;
-                  font-size: 13px;
-                  margin: 0;
-                  border: none;
-                }
-
-                .sc-nested-items .sc-sidebar-item .sc-item-icon {
-                  font-size: 14px;
-                }
-
-                /* Collapsed state styling */
-                .sc-sidebar.collapsed .sc-sidebar-item {
-                  padding: 15px 0;
-                  justify-content: center;
-                  text-align: center;
-                  min-height: 50px;
-                  display: flex;
-                  align-items: center;
-                }
-
-                .sc-sidebar.collapsed .sc-sidebar-item .sc-item-icon {
-                  margin: 0;
-                  font-size: 18px;
-                  transition: var(--sc-transition);
-                  flex-shrink: 0;
-                  width: 20px;
-                  height: 20px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                }
-
-                /* Tooltip for collapsed items */
-                .sc-sidebar.collapsed .sc-sidebar-item {
-                  position: relative;
-                }
-
-                .sc-sidebar.collapsed .sc-sidebar-item::after {
-                  content: attr(data-tooltip);
-                  position: absolute;
-                  left: 100%;
-                  top: 50%;
-                  transform: translateY(-50%);
-                  background: var(--sc-light-bg);
-                  color: var(--sc-light-text);
-                  padding: 8px 12px;
-                  border-radius: var(--sc-border-radius);
-                  box-shadow: 0 2px 10px var(--sc-light-shadow);
-                  font-size: 12px;
-                  white-space: nowrap;
-                  opacity: 0;
-                  visibility: hidden;
-                  transition: var(--sc-transition);
-                  z-index: 1001;
-                  margin-left: 10px;
-                  pointer-events: none;
-                }
-
-                .sc-sidebar.collapsed .sc-sidebar-item:hover::after {
-                  opacity: 1;
-                  visibility: visible;
-                }
-
-                /* Enhanced hover effects */
-                .sc-sidebar-item:hover .sc-item-icon {
-                  transform: scale(1.1);
-                }
-
-                .sc-sidebar-item:hover .sc-item-text {
-                  transform: translateX(3px);
-                }
-
-                /* Focus states for accessibility */
-                .sc-sidebar-item:focus {
-                  outline: 2px solid #3498db;
-                  outline-offset: 2px;
-                }
-
-                .sc-sidebar-item:focus .sc-item-icon {
-                  transform: scale(1.1);
-                }
-
-                /* Utility classes */
-                .sc-hidden {
-                  display: none !important;
-                }
-
-                .sc-visible {
-                  display: block !important;
-                }
-
-                /* Smooth transitions for all interactive elements */
-                .sc-sidebar-item * {
-                  transition: var(--sc-transition);
-                }
-
-                /* Prevent layout shifts during transitions */
-                .sc-nested-items {
-                  will-change: max-height, opacity, transform;
-                }
-            </style>
-            
             <button class="sc-sidebar-item ${this._expanded ? "expanded" : ""}" 
                     data-key="${key}"
                     data-behavior="${behavior}"
@@ -1131,6 +559,8 @@ class ScSidebarItem extends HTMLElement {
                 }
             </button>
             
+            ${tooltipMenu}
+            
             ${
               isExpandable
                 ? `
@@ -1141,6 +571,111 @@ class ScSidebarItem extends HTMLElement {
                 : ""
             }
         `;
+  }
+
+  _generateTooltipMenu(text, icon, description, hasChildren) {
+    if (!hasChildren) {
+      // Simple item - just show text and description
+      return `
+        <div class="sc-tooltip-menu">
+          <div class="sc-tooltip-menu-header">
+            <i class="sc-tooltip-icon ${icon}"></i>
+            <span>${text}</span>
+          </div>
+          ${description ? `
+            <div class="sc-tooltip-menu-content">
+              <div class="sc-tooltip-menu-item">
+                <div class="sc-tooltip-item-content">
+                  <div class="sc-tooltip-item-text">${text}</div>
+                  <div class="sc-tooltip-item-description">${description}</div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    // Item with children - generate nested menu structure
+    const children = this.querySelectorAll("sc-sidebar-item");
+    let childrenHTML = '';
+
+    children.forEach((child, index) => {
+      const childText = child.getAttribute("text") || "";
+      const childIcon = child.getAttribute("icon") || "fas fa-circle";
+      const childDescription = child.getAttribute("description") || "";
+      const childHasChildren = child.querySelectorAll("sc-sidebar-item").length > 0;
+
+      if (childHasChildren) {
+        // Generate sub-menu for nested children
+        const subChildren = child.querySelectorAll("sc-sidebar-item");
+        let subChildrenHTML = '';
+
+        subChildren.forEach((subChild) => {
+          const subText = subChild.getAttribute("text") || "";
+          const subIcon = subChild.getAttribute("icon") || "fas fa-circle";
+          const subDescription = subChild.getAttribute("description") || "";
+
+          subChildrenHTML += `
+            <div class="sc-tooltip-menu-item">
+              <i class="sc-tooltip-item-icon ${subIcon}"></i>
+              <div class="sc-tooltip-item-content">
+                <div class="sc-tooltip-item-text">${subText}</div>
+                ${subDescription ? `<div class="sc-tooltip-item-description">${subDescription}</div>` : ''}
+              </div>
+            </div>
+          `;
+        });
+
+        childrenHTML += `
+          <div class="sc-tooltip-menu-item" style="position: relative;">
+            <i class="sc-tooltip-item-icon ${childIcon}"></i>
+            <div class="sc-tooltip-item-content">
+              <div class="sc-tooltip-item-text">${childText}</div>
+              ${childDescription ? `<div class="sc-tooltip-item-description">${childDescription}</div>` : ''}
+            </div>
+            <i class="sc-tooltip-sub-indicator fas fa-chevron-right"></i>
+            <div class="sc-tooltip-sub-menu">
+              <div class="sc-tooltip-menu-header">
+                <i class="sc-tooltip-icon ${childIcon}"></i>
+                <span>${childText}</span>
+              </div>
+              <div class="sc-tooltip-menu-content">
+                ${subChildrenHTML}
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        // Simple child item
+        childrenHTML += `
+          <div class="sc-tooltip-menu-item">
+            <i class="sc-tooltip-item-icon ${childIcon}"></i>
+            <div class="sc-tooltip-item-content">
+              <div class="sc-tooltip-item-text">${childText}</div>
+              ${childDescription ? `<div class="sc-tooltip-item-description">${childDescription}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      // Add divider between items (except for the last one)
+      if (index < children.length - 1) {
+        childrenHTML += '<div class="sc-tooltip-menu-divider"></div>';
+      }
+    });
+
+    return `
+      <div class="sc-tooltip-menu">
+        <div class="sc-tooltip-menu-header">
+          <i class="sc-tooltip-icon ${icon}"></i>
+          <span>${text}</span>
+        </div>
+        <div class="sc-tooltip-menu-content">
+          ${childrenHTML}
+        </div>
+      </div>
+    `;
   }
 
   _setupEventListeners() {
@@ -1162,6 +697,51 @@ class ScSidebarItem extends HTMLElement {
     };
 
     this._shadow.addEventListener("click", this._clickHandler);
+
+    // Add event listeners for tooltip menu items
+    this._setupTooltipMenuEventListeners();
+  }
+
+  _setupTooltipMenuEventListeners() {
+    // Wait for DOM to be ready
+    setTimeout(() => {
+      const tooltipMenuItems = this._shadow.querySelectorAll('.sc-tooltip-menu-item');
+      
+      tooltipMenuItems.forEach((item) => {
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this._handleTooltipMenuItemClick(item);
+        });
+      });
+    }, 100);
+  }
+
+  _handleTooltipMenuItemClick(tooltipItem) {
+    // Find the corresponding sidebar item
+    const itemText = tooltipItem.querySelector('.sc-tooltip-item-text')?.textContent;
+    if (!itemText) return;
+
+    // Find the sidebar item with matching text
+    const sidebarItems = this.querySelectorAll('sc-sidebar-item');
+    const matchingItem = Array.from(sidebarItems).find(item => 
+      item.getAttribute('text') === itemText
+    );
+
+    if (matchingItem) {
+      // Trigger click on the matching sidebar item
+      matchingItem.click();
+    }
+
+    // Dispatch custom event for external handling
+    this.dispatchEvent(
+      new CustomEvent("tooltip-menu-item-click", {
+        detail: {
+          text: itemText,
+          element: tooltipItem
+        },
+        bubbles: true,
+      })
+    );
   }
 
   _handleClick(button, e) {
