@@ -13,6 +13,7 @@ A beautiful, modern, and feature-rich sidebar component built with Web Component
 - 🚀 **Web Components**: Built with modern web standards
 - 💾 **State Persistence**: Remembers user preferences
 - 🔄 **Dynamic Content**: Support for nested menus and dynamic data
+- 🎯 **Self-Contained**: All CSS styles embedded within the component (no external files needed)
 
 ## 🚀 Quick Start
 
@@ -25,11 +26,41 @@ A beautiful, modern, and feature-rich sidebar component built with Web Component
     <script src="sidebar.js"></script>
 </head>
 <body>
+    <!-- سایدبار به صورت خودکار layout را مدیریت می‌کند -->
     <sc-sidebar theme="light" position="left" width="280px">
+        <!-- محتوای سایدبار -->
     </sc-sidebar>
+    
+    <!-- محتوا به صورت خودکار کنار سایدبار قرار می‌گیرد -->
+    <div class="main-content">
+        <h1>محتوای اصلی صفحه</h1>
+        <p>این محتوا به صورت خودکار کنار سایدبار قرار می‌گیرد.</p>
+    </div>
 </body>
 </html>
 ```
+
+### Auto Layout Example
+
+```html
+<!-- سایدبار سمت چپ -->
+<sc-sidebar position="left" width="280px">
+    <!-- منوی سایدبار -->
+</sc-sidebar>
+
+<!-- محتوا به صورت خودکار کنار سایدبار قرار می‌گیرد -->
+<div class="content">
+    <h1>عنوان صفحه</h1>
+    <p>محتوا...</p>
+</div>
+
+<!-- سایدبار سمت راست -->
+<sc-sidebar position="right" width="250px">
+    <!-- ابزارهای جانبی -->
+</sc-sidebar>
+```
+
+> **Note**: The component now includes all CSS styles embedded within the JavaScript file. No external CSS file is required!
 
 ### With Custom Items
 
@@ -94,6 +125,173 @@ A beautiful, modern, and feature-rich sidebar component built with Web Component
 - `removeItem(itemId)`: Remove an item by ID
 - `setActiveItem(itemId)`: Set active item
 - `toggleSidebar()`: Toggle collapse state
+
+## 🎯 Auto Layout System
+
+The sidebar component automatically manages page layout using CSS Grid, eliminating the need for manual layout management.
+
+### How It Works
+
+1. **CSS Grid Container**: The component uses `:host` with `display: grid`
+2. **Automatic Positioning**: Content automatically flows next to the sidebar
+3. **Responsive Behavior**: Grid layout adapts to sidebar state changes
+4. **Mobile Optimization**: Grid is disabled on mobile for overlay behavior
+
+### Layout Rules
+
+```css
+/* Default (left sidebar) */
+:host {
+    grid-template-columns: 280px 1fr;
+}
+
+/* Right sidebar */
+:host([position="right"]) {
+    grid-template-columns: 1fr 280px;
+}
+
+/* Collapsed state */
+:host(.collapsed) {
+    grid-template-columns: 60px 1fr;
+}
+```
+
+### Benefits
+
+- **No Manual Layout**: Content automatically positions itself
+- **Responsive**: Adapts to different screen sizes
+- **Flexible**: Works with any content structure
+- **Performance**: Uses native CSS Grid for optimal performance
+
+## 🎯 Embedded CSS Architecture & Auto Layout
+
+The sidebar component now includes all CSS styles embedded within the JavaScript file, making it completely self-contained and easier to deploy. Additionally, it features automatic layout management using CSS Grid.
+
+### Benefits of Embedded CSS
+
+- **No External Dependencies**: Eliminates the need for separate CSS files
+- **Shadow DOM Encapsulation**: Styles are scoped to the component using Shadow DOM
+- **Single File Distribution**: Only one JavaScript file needed for the complete component
+- **Better Performance**: No additional HTTP requests for CSS files
+- **Easier Deployment**: No need to manage multiple asset files
+
+### How It Works
+
+The component uses the `_getStyles()` method to inject CSS directly into the Shadow DOM:
+
+```javascript
+_getStyles() {
+  return `
+    <style>
+      /* All CSS styles are defined here */
+      :host { /* CSS variables and base styles */ }
+      .sc-sidebar { /* Main sidebar styles */ }
+      /* ... more styles ... */
+    </style>
+  `;
+}
+```
+
+### CSS Organization
+
+- **CSS Variables**: Defined at `:host` level for easy theming
+- **Component Styles**: All sidebar-related styles are included
+- **Responsive Design**: Media queries for mobile and tablet support
+- **Theme Support**: Light and dark theme styles
+- **Animation Styles**: Smooth transitions and hover effects
+
+### Auto Layout Management
+
+The component automatically manages layout using CSS Grid:
+
+- **Left Sidebar**: `grid-template-columns: 280px 1fr` (sidebar + content)
+- **Right Sidebar**: `grid-template-columns: 1fr 280px` (content + sidebar)
+- **Collapsed State**: `grid-template-columns: 60px 1fr` (collapsed sidebar + content)
+- **Content Flow**: Subsequent elements automatically flow next to the sidebar
+- **Responsive**: On mobile, grid layout is disabled and sidebar becomes overlay
+
+## 🚀 Advanced Auto-Layout System
+
+The sidebar component now features an intelligent auto-layout system that automatically adjusts page layout and adjacent elements based on sidebar position and size changes.
+
+### ✨ Auto-Layout Features
+
+- **Automatic Layout Detection**: Automatically finds and adjusts adjacent elements
+- **Position-Aware**: Supports both left and right sidebar positions
+- **Responsive**: Automatically adjusts layout for mobile devices
+- **Smooth Animations**: All layout changes include smooth transitions
+- **CSS Custom Properties**: Provides CSS variables for custom layouts
+- **Event System**: Dispatches events when layout changes occur
+
+### 🔧 How Auto-Layout Works
+
+1. **Element Detection**: Automatically finds elements that need layout adjustment
+2. **Position Calculation**: Calculates appropriate margins based on sidebar position
+3. **Layout Update**: Applies margins and transitions to adjacent elements
+4. **CSS Variables**: Updates CSS custom properties for CSS-based layouts
+5. **Event Dispatch**: Notifies other components of layout changes
+
+### 📱 Supported Layout Methods
+
+#### Simple Auto-Layout
+```html
+<!-- Just add the sidebar - layout is automatic -->
+<sc-sidebar theme="light" position="left" collapsible>
+    <sc-sidebar-item text="Dashboard" icon="fas fa-home"></sc-sidebar-item>
+</sc-sidebar>
+
+<!-- Next element automatically adjusts -->
+<div class="content">
+    Your content here
+</div>
+```
+
+#### CSS Grid Layout
+```html
+<div class="sc-grid-layout">
+    <sc-sidebar theme="dark" collapsible></sc-sidebar>
+    <div class="content">Your content</div>
+</div>
+```
+
+#### Flexbox Layout
+```html
+<div class="sc-flex-layout">
+    <sc-sidebar theme="light" position="right"></sc-sidebar>
+    <div class="sc-content">Your content</div>
+</div>
+```
+
+### 🎮 Auto-Layout API
+
+#### Methods
+- `enableAutoLayout()` - Enable auto-layout functionality
+- `disableAutoLayout()` - Disable auto-layout functionality
+- `updateLayout()` - Manually update layout
+- `getLayoutInfo()` - Get current layout information
+
+#### Events
+- `sidebar-layout-changed` - Fired when layout changes occur
+
+#### CSS Custom Properties
+- `--sidebar-width` - Current sidebar width
+- `--sidebar-margin-left` - Left margin for left-positioned sidebar
+- `--sidebar-margin-right` - Right margin for right-positioned sidebar
+- `--sidebar-transition` - Transition timing for layout changes
+
+### 🔍 Auto-Layout Detection
+
+The component automatically detects:
+- Next sibling elements
+- Common layout classes (`.main-content`, `.content`, `.container`, etc.)
+- Direct body children
+- Elements with specific layout patterns
+
+### 📱 Responsive Behavior
+
+- **Desktop**: Full auto-layout with margins and transitions
+- **Mobile**: Automatic mobile overlay with responsive adjustments
+- **Tablet**: Adaptive layout based on screen size
 
 ## 📊 Item Structure
 
