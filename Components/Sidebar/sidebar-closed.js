@@ -248,13 +248,12 @@ class ScSidebar extends HTMLElement {
     if (sidebarElement) {
       sidebarElement.classList.toggle("collapsed", this._state.collapsed);
     }
-debugger
-    const sidebarItemElements = document.querySelectorAll(
-      ".sc-sidebar-item .sc-item-content"
-    );
+
+  
+    const sidebarItemElements = this.querySelectorAll("sc-sidebar-item");
 
     sidebarItemElements.forEach((element) => {
-      element.classList.toggle("sc-hidden", this._state.collapsed);
+      element._shadow.querySelector(".sc-item-content").classList.toggle("sc-hidden", this._state.collapsed);
     });
 
     // Update toggle button icon
