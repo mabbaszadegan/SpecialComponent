@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Sidebar Component Demo</title>
+    
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Fallback FontAwesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="json-sidebar-demo.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <sc-sidebar 
+                id="json-sidebar"
+                theme="light"
+                position="right"
+                width="320px"
+                collapsed-width="60px"
+                collapsible
+                show-header
+                show-footer
+                searchable
+                filterable
+                animations
+                responsive
+                remember-state
+                auto-expand-on-load
+                data-source="../../demo/json-sidebar-demo/menu-data.json">
+            </sc-sidebar>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1>دموی Sidebar با JSON</h1>
+                <p>در این دمو، منوی sidebar از فایل JSON بارگذاری می‌شود</p>
+            </div>
+            
+            <div class="demo-controls">
+                <h3>کنترل‌های دمو:</h3>
+                <div class="control-buttons">
+                    <button id="refresh-data-btn" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> بروزرسانی داده‌ها
+                    </button>
+                    <button id="expand-all-btn" class="btn btn-success">
+                        <i class="fas fa-expand-arrows-alt"></i> باز کردن همه
+                    </button>
+                    <button id="collapse-all-btn" class="btn btn-warning">
+                        <i class="fas fa-compress-arrows-alt"></i> بستن همه
+                    </button>
+                    <button id="toggle-sidebar-btn" class="btn btn-info">
+                        <i class="fas fa-bars"></i> تغییر وضعیت
+                    </button>
+                    <button id="change-theme-btn" class="btn btn-secondary">
+                        <i class="fas fa-palette"></i> تغییر تم
+                    </button>
+                </div>
+            </div>
+            
+            <div class="demo-info">
+                <h3>ویژگی‌های این دمو:</h3>
+                <ul>
+                    <li><strong>بارگذاری از JSON:</strong> منو از فایل JSON خارجی بارگذاری می‌شود</li>
+                    <li><strong>ساختار پویا:</strong> امکان تغییر ساختار منو بدون تغییر کد</li>
+                    <li><strong>منوی چند سطحی:</strong> پشتیبانی از منوهای عمیق و پیچیده</li>
+                    <li><strong>جستجو و فیلتر:</strong> قابلیت جستجو در تمام آیتم‌های منو</li>
+                    <li><strong>بارگذاری خودکار:</strong> باز شدن خودکار آیتم‌های مهم</li>
+                    <li><strong>حفظ وضعیت:</strong> به خاطر سپردن وضعیت آیتم‌ها</li>
+                </ul>
+            </div>
+            
+            <div class="data-info">
+                <h3>اطلاعات فایل JSON:</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">نام فایل:</span>
+                        <span class="info-value">menu-data.json</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">تعداد آیتم‌های اصلی:</span>
+                        <span class="info-value" id="main-items-count">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">تعداد کل آیتم‌ها:</span>
+                        <span class="info-value" id="total-items-count">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">آخرین بروزرسانی:</span>
+                        <span class="info-value" id="last-update">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="event-log">
+                <h3>رویدادهای sidebar:</h3>
+                <div id="event-log-content" class="log-content">
+                    <div class="log-entry">آماده به کار - منتظر بارگذاری داده‌ها...</div>
+                </div>
+                <button id="clear-log-btn" class="btn btn-secondary">پاک کردن لاگ</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../../sidebar.js"></script>
+    <script src="json-sidebar-demo.js"></script>
+</body>
+</html>
+

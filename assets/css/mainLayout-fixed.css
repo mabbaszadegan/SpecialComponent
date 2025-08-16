@@ -1,4 +1,4 @@
-/* Main Layout CSS - Special Components Project */
+/* Main Layout CSS - Fixed for Right Sidebar */
 /* پشتیبانی کامل از RTL و طراحی مدرن */
 
 /* Reset and Base Styles */
@@ -20,6 +20,7 @@ body {
     background: #f8f9fa;
     direction: rtl;
     text-align: right;
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* Typography */
@@ -130,22 +131,26 @@ a:hover {
     padding: 0 1rem;
 }
 
+/* Main Container - Fixed for Right Sidebar */
 .main-container {
-    display: grid;
-    grid-template-columns: 1fr 300px;
+    display: flex;
     min-height: 100vh;
-    transition: grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 }
 
-.main-container.sidebar-collapsed {
-    grid-template-columns: 1fr 60px;
-}
-
+/* Content Area - Fixed for Right Sidebar */
 .content-area {
+    flex: 1;
     padding: 2rem;
     background: #f8f9fa;
     overflow-y: auto;
     direction: rtl;
+    margin-left: 600px; /* برای سایدبار سمت راست */
+    transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.content-area.sidebar-collapsed {
+    margin-left: 60px; /* برای سایدبار collapsed */
 }
 
 /* Content Header */
@@ -449,20 +454,13 @@ a:hover {
 }
 
 @media (max-width: 992px) {
-    .main-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .main-container.sidebar-collapsed {
-        grid-template-columns: 1fr;
+    .content-area {
+        margin-left: 0 !important;
+        padding: 1.5rem;
     }
     
     .sidebar-toggle {
         display: flex;
-    }
-    
-    .content-area {
-        padding: 1.5rem;
     }
     
     .component-grid {
@@ -554,11 +552,8 @@ a:hover {
         display: none;
     }
     
-    .main-container {
-        grid-template-columns: 1fr;
-    }
-    
     .content-area {
+        margin-left: 0 !important;
         padding: 0;
     }
     

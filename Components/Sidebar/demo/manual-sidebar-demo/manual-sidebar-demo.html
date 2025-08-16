@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Sidebar Component Demo</title>
+    
+     <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../../sidebar.css">
+    <link rel="stylesheet" href="manual-sidebar-demo.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+            <sc-sidebar 
+                id="manual-sidebar"
+                theme="light"
+                position="right"
+                width="300px"
+                collapsible
+                show-header
+                show-footer
+                searchable
+                animations
+                responsive
+                remember-state>
+                
+                <!-- Manual Menu Items -->
+                <sc-sidebar-item 
+                    key="dashboard" 
+                    text="داشبورد" 
+                    icon="fas fa-tachometer-alt"
+                    description="نمایش کلی سیستم"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="users" 
+                    text="کاربران" 
+                    icon="fas fa-users"
+                    description="مدیریت کاربران سیستم"
+                    behavior="expandable">
+                    
+                    <sc-sidebar-item 
+                        key="user-list" 
+                        text="لیست کاربران" 
+                        icon="fas fa-list"
+                        description="مشاهده تمام کاربران"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="user-add" 
+                        text="افزودن کاربر" 
+                        icon="fas fa-user-plus"
+                        description="ایجاد کاربر جدید"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="user-roles" 
+                        text="نقش‌های کاربری" 
+                        icon="fas fa-user-shield"
+                        description="مدیریت نقش‌ها و دسترسی‌ها"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="products" 
+                    text="محصولات" 
+                    icon="fas fa-box"
+                    description="مدیریت محصولات و خدمات"
+                    behavior="clickable">
+                    
+                    <sc-sidebar-item 
+                        key="product-list" 
+                        text="لیست محصولات" 
+                        icon="fas fa-th-large"
+                        description="مشاهده تمام محصولات"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="product-add" 
+                        text="افزودن محصول" 
+                        icon="fas fa-plus-circle"
+                        description="ایجاد محصول جدید"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="product-categories" 
+                        text="دسته‌بندی‌ها" 
+                        icon="fas fa-tags"
+                        description="مدیریت دسته‌بندی محصولات"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="orders" 
+                    text="سفارشات" 
+                    icon="fas fa-shopping-cart"
+                    description="مدیریت سفارشات و پرداخت‌ها"
+                    behavior="clickable">
+                    
+                    <sc-sidebar-item 
+                        key="order-list" 
+                        text="لیست سفارشات" 
+                        icon="fas fa-list-alt"
+                        description="مشاهده تمام سفارشات"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="order-pending" 
+                        text="سفارشات در انتظار" 
+                        icon="fas fa-clock"
+                        description="سفارشات تایید نشده"
+                        badge="5"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="order-completed" 
+                        text="سفارشات تکمیل شده" 
+                        icon="fas fa-check-circle"
+                        description="سفارشات تحویل شده"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="reports" 
+                    text="گزارشات" 
+                    icon="fas fa-chart-bar"
+                    description="گزارشات و آمار سیستم"
+                    behavior="clickable">
+                    
+                    <sc-sidebar-item 
+                        key="sales-report" 
+                        text="گزارش فروش" 
+                        icon="fas fa-chart-line"
+                        description="آمار فروش و درآمد"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="user-report" 
+                        text="گزارش کاربران" 
+                        icon="fas fa-chart-pie"
+                        description="آمار کاربران و فعالیت‌ها"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="settings" 
+                    text="تنظیمات" 
+                    icon="fas fa-cog"
+                    description="تنظیمات سیستم و پروفایل"
+                    behavior="clickable">
+                    
+                    <sc-sidebar-item 
+                        key="profile-settings" 
+                        text="تنظیمات پروفایل" 
+                        icon="fas fa-user-cog"
+                        description="تغییر اطلاعات شخصی"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="system-settings" 
+                        text="تنظیمات سیستم" 
+                        icon="fas fa-server"
+                        description="تنظیمات کلی سیستم"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                    
+                    <sc-sidebar-item 
+                        key="backup-restore" 
+                        text="پشتیبان‌گیری" 
+                        icon="fas fa-database"
+                        description="پشتیبان‌گیری و بازیابی"
+                        behavior="clickable">
+                    </sc-sidebar-item>
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="help" 
+                    text="راهنما" 
+                    icon="fas fa-question-circle"
+                    description="راهنمای استفاده از سیستم"
+                    behavior="clickable">
+                </sc-sidebar-item>
+                
+                <sc-sidebar-item 
+                    key="logout" 
+                    text="خروج" 
+                    icon="fas fa-sign-out-alt"
+                    description="خروج از سیستم"
+                    behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1>دموی منوی دستی</h1>
+                <p>در این دمو، منوی sidebar به صورت دستی با استفاده از تگ‌های HTML تعریف شده است</p>
+            </div>
+            
+            <div class="demo-controls">
+                <h3>کنترل‌های دمو:</h3>
+                <div class="control-buttons">
+                    <button id="add-item-btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> افزودن آیتم
+                    </button>
+                    <button id="remove-item-btn" class="btn btn-danger">
+                        <i class="fas fa-minus"></i> حذف آیتم
+                    </button>
+                    <button id="expand-all-btn" class="btn btn-success">
+                        <i class="fas fa-expand-arrows-alt"></i> باز کردن همه
+                    </button>
+                    <button id="collapse-all-btn" class="btn btn-warning">
+                        <i class="fas fa-compress-arrows-alt"></i> بستن همه
+                    </button>
+                    <button id="toggle-sidebar-btn" class="btn btn-info">
+                        <i class="fas fa-bars"></i> تغییر وضعیت
+                    </button>
+                </div>
+            </div>
+            
+            <div class="demo-info">
+                <h3>ویژگی‌های این دمو:</h3>
+                <ul>
+                    <li><strong>تعریف دستی منو:</strong> تمام آیتم‌های منو با استفاده از تگ‌های HTML تعریف شده‌اند</li>
+                    <li><strong>ساختار سلسله‌مراتبی:</strong> پشتیبانی از منوهای چند سطحی</li>
+                    <li><strong>ویژگی‌های پیشرفته:</strong> آیکون، توضیحات، نشان‌ها (badge) و رفتارهای مختلف</li>
+                    <li><strong>کنترل‌های تعاملی:</strong> امکان افزودن، حذف و مدیریت آیتم‌ها</li>
+                    <li><strong>حفظ وضعیت:</strong> به خاطر سپردن وضعیت باز/بسته بودن آیتم‌ها</li>
+                    <li><strong>جستجو:</strong> قابلیت جستجو در آیتم‌های منو</li>
+                </ul>
+            </div>
+            
+            <div class="event-log">
+                <h3>رویدادهای sidebar:</h3>
+                <div id="event-log-content" class="log-content">
+                    <div class="log-entry">آماده به کار - منتظر کلیک روی آیتم‌ها...</div>
+                </div>
+                <button id="clear-log-btn" class="btn btn-secondary">پاک کردن لاگ</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../../sidebar.js"></script>
+    <script src="manual-sidebar-demo.js"></script>
+</body>
+</html>
+

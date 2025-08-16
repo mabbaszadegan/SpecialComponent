@@ -1,29 +1,297 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="assets/css/mainLayout.css" rel="stylesheet" />
-    <link href="Components/Sidebar/sidebar.css" rel="stylesheet" />
-    <script src="assets/js/fontawsome/fontawsome.min.js"></script>
-    <script src="index.js" type="module"></script>
-    <title>Document</title>
+    <title>Special Components - کامپوننت‌های ویژه</title>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="assets/libs/font-awesome/fontawsome.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/mainLayout-fixed.css">
+
+
 </head>
 
 <body>
-    <nav class="navbar">
-        <a href="index.html"><i class="fa-solid fa-house">صفحه اصلی</i></a>
-    </nav>
-    <section class="sidebar" id="sidebarContainer">
-    </section>
-    <article id="container">
-        <iframe id="containerFrame"></iframe>
-    </article>
-    <footer>
+    <!-- Sidebar Toggle Button for Mobile -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    <!-- Sidebar -->
+    <sc-sidebar id="main-sidebar" theme="light" position="right" width="300px" collapsible show-header show-footer
+        searchable animations responsive remember-state>
 
-    </footer>
+        <sc-sidebar-item key="dashboard" text="داشبورد اصلی" icon="fas fa-home" description="صفحه اصلی پروژه"
+            behavior="clickable">
+        </sc-sidebar-item>
 
+        <sc-sidebar-item key="sidebar" text="کامپوننت سایدبار" icon="fas fa-bars" description="کامپوننت سایدبار پیشرفته"
+            behavior="expandable">
+
+            <sc-sidebar-item key="sidebar-demos" text="دموها" icon="fas fa-play-circle"
+                description="نمایش قابلیت‌های سایدبار" behavior="expandable">
+
+                <sc-sidebar-item key="simple-demo" text="دمو ساده" icon="fas fa-star" description="نمایش پایه سایدبار"
+                    behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="json-demo" text="دمو JSON" icon="fas fa-code"
+                    description="سایدبار با داده‌های JSON" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="manual-demo" text="دمو دستی" icon="fas fa-hand-paper"
+                    description="سایدبار با آیتم‌های دستی" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="responsive-demo" text="دمو ریسپانسیو" icon="fas fa-mobile-alt"
+                    description="سایدبار ریسپانسیو" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="smooth-demo" text="دمو انیمیشن" icon="fas fa-magic"
+                    description="سایدبار با انیمیشن‌های نرم" behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+
+            <sc-sidebar-item key="sidebar-docs" text="مستندات" icon="fas fa-book"
+                description="راهنمای استفاده از سایدبار" behavior="expandable">
+
+                <sc-sidebar-item key="usage-guide" text="راهنمای استفاده" icon="fas fa-info-circle"
+                    description="نحوه استفاده از کامپوننت" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="api-reference" text="مرجع API" icon="fas fa-code-branch"
+                    description="متدها و ویژگی‌های API" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="examples" text="مثال‌ها" icon="fas fa-lightbulb" description="نمونه‌های کاربردی"
+                    behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="customization" text="شخصی‌سازی" icon="fas fa-palette" description="نحوه شخصی‌سازی"
+                    behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+        </sc-sidebar-item>
+
+        <sc-sidebar-item key="resizable-element" text="کامپوننت Resizable" icon="fas fa-expand-arrows-alt"
+            description="کامپوننت قابل تغییر اندازه" behavior="expandable">
+
+            <sc-sidebar-item key="resizable-demos" text="دموها" icon="fas fa-play-circle"
+                description="نمایش قابلیت‌های Resizable" behavior="expandable">
+
+                <sc-sidebar-item key="resizable-basic" text="دمو پایه" icon="fas fa-star"
+                    description="نمایش پایه کامپوننت" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="resizable-advanced" text="دمو پیشرفته" icon="fas fa-rocket"
+                    description="نمایش قابلیت‌های پیشرفته" behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+
+            <sc-sidebar-item key="resizable-docs" text="مستندات" icon="fas fa-book"
+                description="راهنمای استفاده از Resizable" behavior="expandable">
+
+                <sc-sidebar-item key="resizable-usage" text="راهنمای استفاده" icon="fas fa-info-circle"
+                    description="نحوه استفاده از کامپوننت" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="resizable-api" text="مرجع API" icon="fas fa-code-branch"
+                    description="متدها و ویژگی‌های API" behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+        </sc-sidebar-item>
+
+        <sc-sidebar-item key="textbox" text="کامپوننت Textbox" icon="fas fa-keyboard"
+            description="کامپوننت ورودی متن پیشرفته" behavior="expandable">
+
+            <sc-sidebar-item key="textbox-demos" text="دموها" icon="fas fa-play-circle"
+                description="نمایش قابلیت‌های Textbox" behavior="expandable">
+
+                <sc-sidebar-item key="textbox-basic" text="دمو پایه" icon="fas fa-star"
+                    description="نمایش پایه کامپوننت" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="textbox-advanced" text="دمو پیشرفته" icon="fas fa-rocket"
+                    description="نمایش قابلیت‌های پیشرفته" behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+
+            <sc-sidebar-item key="textbox-docs" text="مستندات" icon="fas fa-book"
+                description="راهنمای استفاده از Textbox" behavior="expandable">
+
+                <sc-sidebar-item key="textbox-usage" text="راهنمای استفاده" icon="fas fa-info-circle"
+                    description="نحوه استفاده از کامپوننت" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="textbox-api" text="مرجع API" icon="fas fa-code-branch"
+                    description="متدها و ویژگی‌های API" behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+        </sc-sidebar-item>
+
+        <sc-sidebar-item key="credit-card" text="کامپوننت Credit Card" icon="fas fa-credit-card"
+            description="کامپوننت کارت اعتباری" behavior="expandable">
+
+            <sc-sidebar-item key="credit-demos" text="دموها" icon="fas fa-play-circle"
+                description="نمایش قابلیت‌های Credit Card" behavior="expandable">
+
+                <sc-sidebar-item key="credit-basic" text="دمو پایه" icon="fas fa-star" description="نمایش پایه کامپوننت"
+                    behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="credit-advanced" text="دمو پیشرفته" icon="fas fa-rocket"
+                    description="نمایش قابلیت‌های پیشرفته" behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+
+            <sc-sidebar-item key="credit-docs" text="مستندات" icon="fas fa-book"
+                description="راهنمای استفاده از Credit Card" behavior="expandable">
+
+                <sc-sidebar-item key="credit-usage" text="راهنمای استفاده" icon="fas fa-info-circle"
+                    description="نحوه استفاده از کامپوننت" behavior="clickable">
+                </sc-sidebar-item>
+
+                <sc-sidebar-item key="credit-api" text="مرجع API" icon="fas fa-code-branch"
+                    description="متدها و ویژگی‌های API" behavior="clickable">
+                </sc-sidebar-item>
+            </sc-sidebar-item>
+        </sc-sidebar-item>
+
+        <sc-sidebar-item key="settings" text="تنظیمات" icon="fas fa-cog" description="تنظیمات پروژه"
+            behavior="clickable">
+        </sc-sidebar-item>
+
+        <sc-sidebar-item key="help" text="راهنما" icon="fas fa-question-circle" description="راهنمای استفاده"
+            behavior="clickable">
+        </sc-sidebar-item>
+
+        <sc-sidebar-item key="about" text="درباره" icon="fas fa-info-circle" description="اطلاعات پروژه"
+            behavior="clickable">
+        </sc-sidebar-item>
+    </sc-sidebar>
+
+    <!-- Main Content -->
+    <div class="content-area">
+        <!-- Dashboard Header -->
+        <div class="content-header">
+            <h1>🚀 Special Components</h1>
+            <p>مجموعه‌ای از کامپوننت‌های پیشرفته و قابل استفاده مجدد برای پروژه‌های وب</p>
+        </div>
+
+        <!-- Components Overview -->
+        <div class="component-grid">
+            <div class="component-card" data-component="sidebar">
+                <h3>📱 کامپوننت سایدبار</h3>
+                <p>کامپوننت سایدبار پیشرفته با قابلیت‌های متنوع، انیمیشن‌های نرم و پشتیبانی کامل از RTL</p>
+                <div class="component-actions">
+                    <a href="#" class="btn btn-primary" data-action="demo">
+                        <i class="fas fa-play"></i> مشاهده دمو
+                    </a>
+                    <a href="#" class="btn btn-secondary" data-action="docs">
+                        <i class="fas fa-book"></i> مستندات
+                    </a>
+                </div>
+            </div>
+
+            <div class="component-card" data-component="resizable">
+                <h3>�� کامپوننت Resizable</h3>
+                <p>کامپوننت قابل تغییر اندازه با قابلیت‌های پیشرفته و انیمیشن‌های نرم</p>
+                <div class="component-actions">
+                    <a href="#" class="btn btn-primary" data-action="demo">
+                        <i class="fas fa-play"></i> مشاهده دمو
+                    </a>
+                    <a href="#" class="btn btn-secondary" data-action="docs">
+                        <i class="fas fa-book"></i> مستندات
+                    </a>
+                </div>
+            </div>
+
+            <div class="component-card" data-component="textbox">
+                <h3>⌨️ کامپوننت Textbox</h3>
+                <p>کامپوننت ورودی متن پیشرفته با قابلیت‌های اعتبارسنجی و استایل‌های متنوع</p>
+                <div class="component-actions">
+                    <a href="#" class="btn btn-primary" data-action="demo">
+                        <i class="fas fa-play"></i> مشاهده دمو
+                    </a>
+                    <a href="#" class="btn btn-secondary" data-action="docs">
+                        <i class="fas fa-book"></i> مستندات
+                    </a>
+                </div>
+            </div>
+
+            <div class="component-card" data-component="credit-card">
+                <h3>💳 کامپوننت Credit Card</h3>
+                <p>کامپوننت کارت اعتباری با طراحی زیبا و قابلیت‌های پیشرفته</p>
+                <div class="component-actions">
+                    <a href="#" class="btn btn-primary" data-action="demo">
+                        <i class="fas fa-play"></i> مشاهده دمو
+                    </a>
+                    <a href="#" class="btn btn-secondary" data-action="docs">
+                        <i class="fas fa-book"></i> مستندات
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Section -->
+        <div class="demo-section">
+            <h2>🎬 دموهای موجود</h2>
+            <div class="demo-grid">
+                <div class="demo-item" data-demo="sidebar-simple">
+                    <h4>دمو ساده سایدبار</h4>
+                    <p>نمایش پایه کامپوننت سایدبار</p>
+                </div>
+                <div class="demo-item" data-demo="sidebar-json">
+                    <h4>دمو JSON سایدبار</h4>
+                    <p>سایدبار با داده‌های JSON</p>
+                </div>
+                <div class="demo-item" data-demo="sidebar-manual">
+                    <h4>دمو دستی سایدبار</h4>
+                    <p>سایدبار با آیتم‌های دستی</p>
+                </div>
+                <div class="demo-item" data-demo="resizable-basic">
+                    <h4>دمو پایه Resizable</h4>
+                    <p>نمایش پایه کامپوننت Resizable</p>
+                </div>
+                <div class="demo-item" data-demo="textbox-basic">
+                    <h4>دمو پایه Textbox</h4>
+                    <p>نمایش پایه کامپوننت Textbox</p>
+                </div>
+                <div class="demo-item" data-demo="credit-basic">
+                    <h4>دمو پایه Credit Card</h4>
+                    <p>نمایش پایه کامپوننت Credit Card</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation Section -->
+        <div class="documentation-section">
+            <h2>📚 مستندات</h2>
+            <div class="doc-item">
+                <h4>🚀 شروع سریع</h4>
+                <p>راهنمای سریع برای شروع کار با کامپوننت‌ها و نمونه‌های کاربردی</p>
+            </div>
+            <div class="doc-item">
+                <h4>🔧 API Reference</h4>
+                <p>مرجع کامل API برای تمام کامپوننت‌ها شامل متدها، ویژگی‌ها و رویدادها</p>
+            </div>
+            <div class="doc-item">
+                <h4>🎨 شخصی‌سازی</h4>
+                <p>راهنمای شخصی‌سازی ظاهر و رفتار کامپوننت‌ها</p>
+            </div>
+            <div class="doc-item">
+                <h4>📱 ریسپانسیو</h4>
+                <p>نحوه استفاده از کامپوننت‌ها در دستگاه‌های مختلف</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="Components/Sidebar/sidebar.js"></script>
+    <script src="index.js"></script>
 </body>
 
 </html>
