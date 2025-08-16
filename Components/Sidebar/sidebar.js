@@ -75,7 +75,6 @@ class ScSidebar extends HTMLElement {
 
   // Method to automatically handle display property based on parent layout
   _autoHandleDisplayProperty() {
-    debugger
     // Check if user has manually set display property
     if (this.style.display && this.style.display !== '') {
       return; // User has explicitly set display, don't override
@@ -371,9 +370,8 @@ class ScSidebar extends HTMLElement {
             opacity var(--sc-transition),
             transform var(--sc-transition),
             visibility var(--sc-transition);
-          opacity: 1;
           transform: translateX(0);
-          visibility: visible;
+          display: unset;
         }
 
         .sc-sidebar-header .sc-toggle-btn {
@@ -404,9 +402,8 @@ class ScSidebar extends HTMLElement {
             opacity var(--sc-transition),
             transform var(--sc-transition),
             visibility var(--sc-transition);
-          opacity: 1;
           transform: translateX(0);
-          visibility: visible;
+          display: unset;
         }
 
         .sc-sidebar[theme="dark"] .sc-sidebar-search {
@@ -473,9 +470,8 @@ class ScSidebar extends HTMLElement {
             opacity var(--sc-transition),
             transform var(--sc-transition),
             visibility var(--sc-transition);
-          opacity: 1;
           transform: translateX(0);
-          visibility: visible;
+          display: unset;
         }
 
         .sc-sidebar[theme="dark"] .sc-sidebar-footer {
@@ -506,9 +502,8 @@ class ScSidebar extends HTMLElement {
         .sc-sidebar.collapsed .sc-sidebar-header h3,
         .sc-sidebar.collapsed .sc-sidebar-search,
         .sc-sidebar.collapsed .sc-sidebar-footer {
-          opacity: 0;
           transform: translateX(-20px);
-          visibility: hidden;
+          display: none;
           pointer-events: none;
         }
 
@@ -517,8 +512,7 @@ class ScSidebar extends HTMLElement {
         }
 
         .sc-sidebar.collapsed .sc-sidebar-search input {
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           pointer-events: none;
         }
 
@@ -593,15 +587,13 @@ class ScSidebar extends HTMLElement {
           bottom: 0;
           background: rgba(0, 0, 0, 0.5);
           z-index: 999;
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           transition: var(--sc-transition);
           pointer-events: none;
         }
 
         .sc-sidebar-overlay.visible {
-          opacity: 1;
-          visibility: visible;
+          display: unset;
           pointer-events: auto;
         }
 
@@ -609,6 +601,7 @@ class ScSidebar extends HTMLElement {
         .sc-sidebar-item {
           display: flex;
           align-items: center;
+          flex-direction: ${this.getAttribute("position")=='right'?'row':'row-reverse'}
           padding: 12px 20px;
           cursor: pointer;
           transition: var(--sc-transition);
@@ -665,9 +658,8 @@ class ScSidebar extends HTMLElement {
             opacity var(--sc-transition),
             transform var(--sc-transition),
             visibility var(--sc-transition);
-          opacity: 1;
           transform: translateX(0);
-          visibility: visible;
+          display: unset;
         }
 
         .sc-sidebar-item .sc-item-text {
@@ -690,7 +682,7 @@ class ScSidebar extends HTMLElement {
         }
 
         .sc-sidebar-item.expanded .sc-item-arrow {
-          transform: rotate(90deg);
+          transform: rotate(-90deg);
         }
 
         /* Nested items - Pure CSS transitions without JavaScript manipulation */
@@ -703,7 +695,6 @@ class ScSidebar extends HTMLElement {
             transform var(--sc-transition),
             padding var(--sc-transition);
           background: rgba(0, 0, 0, 0.02);
-          opacity: 0;
           transform: translateY(-10px);
           padding: 0;
           margin: 0;
@@ -712,7 +703,6 @@ class ScSidebar extends HTMLElement {
 
         .sc-nested-items.expanded {
           max-height: 500px;
-          opacity: 1;
           transform: translateY(0);
           padding: 5px 0;
         }
@@ -773,8 +763,7 @@ class ScSidebar extends HTMLElement {
           box-shadow: 0 2px 10px var(--sc-light-shadow);
           font-size: 12px;
           white-space: nowrap;
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           transition: var(--sc-transition);
           z-index: 1001;
           margin-left: 10px;
@@ -782,8 +771,7 @@ class ScSidebar extends HTMLElement {
         }
 
         .sc-sidebar.collapsed .sc-sidebar-item:hover::after {
-          opacity: 1;
-          visibility: visible;
+          display: unset;
         }
 
         /* Enhanced hover effects */
@@ -826,8 +814,7 @@ class ScSidebar extends HTMLElement {
           max-width: 300px;
           z-index: 1001;
           margin-left: 10px;
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           transform: translateX(-10px);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           pointer-events: none;
@@ -843,8 +830,7 @@ class ScSidebar extends HTMLElement {
 
         /* Show tooltip menu on hover */
         .sc-sidebar.collapsed .sc-sidebar-item:hover .sc-tooltip-menu {
-          opacity: 1;
-          visibility: visible;
+          display: unset;
           transform: translateX(0);
           pointer-events: auto;
         }
@@ -962,8 +948,7 @@ class ScSidebar extends HTMLElement {
           max-width: 250px;
           z-index: 1002;
           margin-left: 5px;
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           transform: translateX(-10px);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           pointer-events: none;
@@ -979,8 +964,7 @@ class ScSidebar extends HTMLElement {
 
         /* Show sub-menu on hover */
         .sc-tooltip-menu-item:hover .sc-tooltip-sub-menu {
-          opacity: 1;
-          visibility: visible;
+          display: unset;
           transform: translateX(0);
           pointer-events: auto;
         }
@@ -1735,9 +1719,6 @@ class ScSidebar extends HTMLElement {
     // Handle dynamic width changes (e.g., from CSS, responsive design, etc.)
     const position = this.getAttribute("position") || "left";
     
-    // Update internal width state
-    this._updateSidebarWidth(newWidth);
-    
     // Automatically adjust adjacent sections
     this._updateAdjacentElementsLayout();
     
@@ -1957,9 +1938,6 @@ class ScSidebar extends HTMLElement {
       const parsedWidth = this._parseWidthValue(newWidth);
       
       if (parsedWidth !== null) {
-        // Update the sidebar's internal width state
-        this._updateSidebarWidth(parsedWidth);
-        
         // Automatically update adjacent sections layout
         this._updateAdjacentElementsLayout();
         
@@ -2022,26 +2000,6 @@ class ScSidebar extends HTMLElement {
     }
     
     return null;
-  }
-
-  _updateSidebarWidth(newWidth) {
-    return
-    // Update the sidebar's internal width state
-    const sidebarElement = this._shadow.querySelector(".sc-sidebar");
-    if (sidebarElement) {
-      // Update CSS custom properties
-      sidebarElement.style.setProperty('--sc-sidebar-width', `${newWidth}px`);
-      sidebarElement.style.width = `${newWidth}px`;
-      sidebarElement.style.minWidth = `${newWidth}px`;
-      sidebarElement.style.maxWidth = `${newWidth}px`;
-      sidebarElement.style.flexBasis = `${newWidth}px`;
-    }
-    
-    // Update the component's width attribute if it's different
-    const currentWidth = this.getAttribute("width");
-    if (currentWidth !== newWidth.toString()) {
-      this.setAttribute("width", newWidth.toString());
-    }
   }
 
   connectedCallback() {
@@ -2107,6 +2065,8 @@ class ScSidebarItem extends HTMLElement {
   }
 
   _getStyles() {
+    const sidebar = this.closest("sc-sidebar");
+
     return `
       <style>
         /* Advanced Sidebar Web Components with Closed Shadow DOM Design */
@@ -2226,9 +2186,8 @@ class ScSidebarItem extends HTMLElement {
             opacity var(--sc-transition),
             transform var(--sc-transition),
             visibility var(--sc-transition);
-          opacity: 1;
           transform: translateX(0);
-          visibility: visible;
+          display: unset;
         }
 
         .sc-sidebar-header .sc-toggle-btn {
@@ -2259,9 +2218,8 @@ class ScSidebarItem extends HTMLElement {
             opacity var(--sc-transition),
             transform var(--sc-transition),
             visibility var(--sc-transition);
-          opacity: 1;
           transform: translateX(0);
-          visibility: visible;
+          display: unset;
         }
 
         .sc-sidebar[theme="dark"] .sc-sidebar-search {
@@ -2328,9 +2286,8 @@ class ScSidebarItem extends HTMLElement {
             opacity var(--sc-transition),
             transform var(--sc-transition),
             visibility var(--sc-transition);
-          opacity: 1;
           transform: translateX(0);
-          visibility: visible;
+          display: unset;
         }
 
         .sc-sidebar[theme="dark"] .sc-sidebar-footer {
@@ -2350,9 +2307,8 @@ class ScSidebarItem extends HTMLElement {
         .sc-sidebar.collapsed .sc-sidebar-header h3,
         .sc-sidebar.collapsed .sc-sidebar-search,
         .sc-sidebar.collapsed .sc-sidebar-footer {
-          opacity: 0;
           transform: translateX(-20px);
-          visibility: hidden;
+          display: none;
           pointer-events: none;
         }
 
@@ -2361,8 +2317,7 @@ class ScSidebarItem extends HTMLElement {
         }
 
         .sc-sidebar.collapsed .sc-sidebar-search input {
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           pointer-events: none;
         }
 
@@ -2439,15 +2394,13 @@ class ScSidebarItem extends HTMLElement {
           bottom: 0;
           background: rgba(0, 0, 0, 0.5);
           z-index: 999;
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           transition: var(--sc-transition);
           pointer-events: none;
         }
 
         .sc-sidebar-overlay.visible {
-          opacity: 1;
-          visibility: visible;
+          display: unset;
           pointer-events: auto;
         }
 
@@ -2455,7 +2408,8 @@ class ScSidebarItem extends HTMLElement {
         .sc-sidebar-item {
           display: flex;
           align-items: center;
-          padding: 12px 20px;
+          flex-direction: ${sidebar.getAttribute("position")=='right'?'row':'row-reverse'};
+          padding: 12px 7px;
           cursor: pointer;
           transition: var(--sc-transition);
           border: none;
@@ -2511,9 +2465,8 @@ class ScSidebarItem extends HTMLElement {
             opacity var(--sc-transition),
             transform var(--sc-transition),
             visibility var(--sc-transition);
-          opacity: 1;
           transform: translateX(0);
-          visibility: visible;
+          display: unset;
         }
 
         .sc-sidebar-item .sc-item-text {
@@ -2536,7 +2489,7 @@ class ScSidebarItem extends HTMLElement {
         }
 
         .sc-sidebar-item.expanded .sc-item-arrow {
-          transform: rotate(90deg);
+          transform: rotate(${sidebar.getAttribute("position")=='right'?'-90deg':'90deg'});
         }
 
         /* Nested items - Pure CSS transitions without JavaScript manipulation */
@@ -2549,7 +2502,6 @@ class ScSidebarItem extends HTMLElement {
             transform var(--sc-transition),
             padding var(--sc-transition);
           background: rgba(0, 0, 0, 0.02);
-          opacity: 0;
           transform: translateY(-10px);
           padding: 0;
           margin: 0;
@@ -2558,7 +2510,6 @@ class ScSidebarItem extends HTMLElement {
 
         .sc-nested-items.expanded {
           max-height: 500px;
-          opacity: 1;
           transform: translateY(0);
           padding: 5px 0;
         }
@@ -2619,8 +2570,7 @@ class ScSidebarItem extends HTMLElement {
           box-shadow: 0 2px 10px var(--sc-light-shadow);
           font-size: 12px;
           white-space: nowrap;
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           transition: var(--sc-transition);
           z-index: 1001;
           margin-left: 10px;
@@ -2628,8 +2578,7 @@ class ScSidebarItem extends HTMLElement {
         }
 
         .sc-sidebar.collapsed .sc-sidebar-item:hover::after {
-          opacity: 1;
-          visibility: visible;
+          display: unset;
         }
 
         /* Enhanced hover effects */
@@ -2672,8 +2621,7 @@ class ScSidebarItem extends HTMLElement {
           max-width: 300px;
           z-index: 1001;
           margin-left: 10px;
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           transform: translateX(-10px);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           pointer-events: none;
@@ -2689,8 +2637,7 @@ class ScSidebarItem extends HTMLElement {
 
         /* Show tooltip menu on hover */
         .sc-sidebar.collapsed .sc-sidebar-item:hover .sc-tooltip-menu {
-          opacity: 1;
-          visibility: visible;
+          display: unset;
           transform: translateX(0);
           pointer-events: auto;
         }
@@ -2808,8 +2755,7 @@ class ScSidebarItem extends HTMLElement {
           max-width: 250px;
           z-index: 1002;
           margin-left: 5px;
-          opacity: 0;
-          visibility: hidden;
+          display: none;
           transform: translateX(-10px);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           pointer-events: none;
@@ -2825,8 +2771,7 @@ class ScSidebarItem extends HTMLElement {
 
         /* Show sub-menu on hover */
         .sc-tooltip-menu-item:hover .sc-tooltip-sub-menu {
-          opacity: 1;
-          visibility: visible;
+          display: unset;
           transform: translateX(0);
           pointer-events: auto;
         }
@@ -3057,7 +3002,7 @@ class ScSidebarItem extends HTMLElement {
                   
                   ${
                     isExpandable
-                      ? `<i class="sc-item-arrow fas fa-chevron-right"></i>`
+                      ? `<i class="sc-item-arrow fas fa-chevron-${sidebar.getAttribute("position")=='right'?'left':'right'}"></i>`
                       : ""
                   }
               </button>
@@ -3152,7 +3097,7 @@ class ScSidebarItem extends HTMLElement {
                     : ""
                 }
               </div>
-              <i class="sc-tooltip-sub-indicator fas fa-chevron-right"></i>
+              <i class="sc-tooltip-sub-indicator fas fa-chevron-left"></i>
               <div class="sc-tooltip-sub-menu">
                 <div class="sc-tooltip-menu-header">
                   <i class="sc-tooltip-icon ${childIcon}"></i>
