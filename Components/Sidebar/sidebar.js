@@ -73,6 +73,115 @@ class ScSidebar extends HTMLElement {
     }
   }
 
+  // Method to automatically handle display property based on parent layout
+  _autoHandleDisplayProperty() {
+    debugger
+    // Check if user has manually set display property
+    if (this.style.display && this.style.display !== '') {
+      return; // User has explicitly set display, don't override
+    }
+
+    const parent = this.parentElement;
+    if (!parent) return;
+
+    // Get computed styles of parent
+    const parentStyle = window.getComputedStyle(parent);
+    const parentDisplay = parentStyle.display;
+
+    // Check if parent is using flexbox or grid layout
+    if (parentDisplay === 'flex' || parentDisplay === 'inline-flex' || 
+        parentDisplay === 'grid' || parentDisplay === 'inline-grid') {
+      
+      // Set display: contents to make sidebar work properly in flexbox/grid layouts
+      this.style.display = 'contents';
+      
+      // Add a data attribute to track this was auto-set
+      this.removeAttribute('data-auto-display');
+      this.setAttribute('data-auto-display', 'contents');
+      
+      console.log('Auto-set sidebar display to "contents" for', parentDisplay, 'layout');
+    } else {
+      // For block layouts, use default display: block
+      this.style.display = 'contents';
+      this.removeAttribute('data-auto-display');
+    }
+  }
+
+  // Method to manually set display property
+  setDisplay(displayValue) {
+    if (displayValue && ['block', 'contents', 'flex', 'grid', 'none'].includes(displayValue)) {
+      this.style.display = displayValue;
+      this.removeAttribute('data-auto-display');
+      console.log('Manually set sidebar display to:', displayValue);
+    }
+  }
+
+  // Method to reset to automatic display handling
+  resetDisplayToAuto() {
+    this.style.display = '';
+    this.removeAttribute('data-auto-display');
+    this._autoHandleDisplayProperty();
+    console.log('Reset sidebar display to automatic handling');
+  }
+
+  // Method to set up layout change detection
+  _setupLayoutChangeDetection() {
+    // Create a mutation observer to watch for parent layout changes
+    if (!this._layoutObserver) {
+      this._layoutObserver = new MutationObserver((mutations) => {
+        let shouldCheckLayout = false;
+        
+        mutations.forEach((mutation) => {
+          // Check if parent's style or class changed
+          if (mutation.type === 'attributes' && 
+              (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+            shouldCheckLayout = true;
+          }
+        });
+        
+        if (shouldCheckLayout) {
+          // Debounce layout checks to avoid excessive updates
+          clearTimeout(this._layoutCheckTimeout);
+          this._layoutCheckTimeout = setTimeout(() => {
+            this._autoHandleDisplayProperty();
+          }, 100);
+        }
+      });
+      
+      // Observe parent element for style and class changes
+      const parent = this.parentElement;
+      if (parent) {
+        this._layoutObserver.observe(parent, {
+          attributes: true,
+          attributeFilter: ['style', 'class']
+        });
+      }
+    }
+  }
+
+  // Method to get parent layout type
+  _getParentLayoutType() {
+    const parent = this.parentElement;
+    if (!parent) return 'none';
+    
+    try {
+      const parentStyle = window.getComputedStyle(parent);
+      const parentDisplay = parentStyle.display;
+      
+      if (parentDisplay === 'flex' || parentDisplay === 'inline-flex') {
+        return 'flexbox';
+      } else if (parentDisplay === 'grid' || parentDisplay === 'inline-grid') {
+        return 'grid';
+      } else if (parentDisplay === 'block') {
+        return 'block';
+      } else {
+        return parentDisplay;
+      }
+    } catch (error) {
+      return 'unknown';
+    }
+  }
+
   getLayoutInfo() {
     const position = this.getAttribute("position") || "left";
     const isCollapsed = this._state.collapsed;
@@ -85,7 +194,10 @@ class ScSidebar extends HTMLElement {
       marginLeft: position === "left" ? sidebarWidth : 0,
       marginRight: position === "right" ? sidebarWidth : 0,
       autoLayout: true,
-      responsive: true
+      responsive: true,
+      display: this.style.display || 'auto',
+      autoDisplay: this.hasAttribute('data-auto-display'),
+      parentLayout: this._getParentLayoutType()
     };
   }
 
@@ -1567,6 +1679,9 @@ class ScSidebar extends HTMLElement {
     
     // Set up automatic width monitoring
     this._setupWidthMonitoring();
+    
+    // Set up layout change detection for automatic display property handling
+    this._setupLayoutChangeDetection();
   }
 
   _handleWindowResize() {
@@ -1599,7 +1714,6 @@ class ScSidebar extends HTMLElement {
   }
 
   _getCurrentSidebarWidth() {
-    debugger;   
     // Get the current sidebar width from state or computed styles
     if (this._state.collapsed) {
       return 60; // Collapsed width
@@ -1673,6 +1787,11 @@ class ScSidebar extends HTMLElement {
       this._resizeHandler = null;
     }
     
+    if (this._layoutCheckTimeout) {
+      clearTimeout(this._layoutCheckTimeout);
+      this._layoutCheckTimeout = null;
+    }
+    
     if (this._resizeTimeout) {
       clearTimeout(this._resizeTimeout);
       this._resizeTimeout = null;
@@ -1686,6 +1805,11 @@ class ScSidebar extends HTMLElement {
     if (this._widthObserver) {
       this._widthObserver.disconnect();
       this._widthObserver = null;
+    }
+    
+    if (this._layoutObserver) {
+      this._layoutObserver.disconnect();
+      this._layoutObserver = null;
     }
   }
 
@@ -1901,6 +2025,7 @@ class ScSidebar extends HTMLElement {
   }
 
   _updateSidebarWidth(newWidth) {
+    return
     // Update the sidebar's internal width state
     const sidebarElement = this._shadow.querySelector(".sc-sidebar");
     if (sidebarElement) {
@@ -1922,6 +2047,7 @@ class ScSidebar extends HTMLElement {
   connectedCallback() {
     this._loadState();
     this._setupAutoLayout();
+    this._autoHandleDisplayProperty();
   }
 
   disconnectedCallback() {
