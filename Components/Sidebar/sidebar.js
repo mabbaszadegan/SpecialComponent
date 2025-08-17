@@ -2467,6 +2467,8 @@ class ScSidebarItem extends HTMLElement {
             visibility var(--sc-transition);
           transform: translateX(0);
           display: unset;
+          text-align: ${sidebar.getAttribute("position")};
+          padding-${sidebar.getAttribute("position")}:7px;
         }
 
         .sc-sidebar-item .sc-item-text {
